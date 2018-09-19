@@ -9,13 +9,10 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 
-
 import org.greenrobot.eventbus.EventBus;
-
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.util.concurrent.TimeoutException;
 
 import leduyhung.me.vocaloid.rest.BaseApi;
 import leduyhung.me.vocaloid.util.ClientUtil;
