@@ -19,8 +19,29 @@ public interface SongDao {
     @Query("SELECT * FROM " + Constants.DB.TABLE_SONG + " WHERE current_page IN (:page)")
     Song getSongsByPage(int page);
 
+    @Query("SELECT * FROM " + Constants.DB.TABLE_SONG + " WHERE current_page IN (:page) AND favorite == 1")
+    Song getSongsFavoriteByPage(int page);
+
+    @Query("SELECT * FROM " + Constants.DB.TABLE_SONG + " WHERE current_page IN (:page) AND singerId IN (:singerId)")
+    Song getSongsSingerByPage(int page, int singerId);
+
     @Query("SELECT id FROM " + Constants.DB.TABLE_SONG + " WHERE save_date <= (:date)")
     List<Integer> getSongsByTime(long date);
+
+    @Query("SELECT id FROM " + Constants.DB.TABLE_SONG + " WHERE save_date <= (:date) AND favorite == 1")
+    List<Integer> getSongsFavoriteByTime(long date);
+
+    @Query("SELECT id FROM " + Constants.DB.TABLE_SONG + " WHERE save_date <= (:date) AND singerId == (:singerId)")
+    List<Integer> getSongsSingerByTime(long date, int singerId);
+
+    @Query("DELETE FROM " + Constants.DB.TABLE_SONG + " WHERE favorite == 0")
+    void deleteFavoriteSongs();
+
+    @Query("DELETE FROM " + Constants.DB.TABLE_SONG + " WHERE singerId IN (:singerId)")
+    void deleteSingerSongs(int singerId);
+
+    @Query("DELETE FROM " + Constants.DB.TABLE_SONG + " WHERE singerId == 0 AND favorite == 0")
+    void deleteSongs();
 
     @Query("DELETE FROM " + Constants.DB.TABLE_SONG)
     void deleteAllSongs();
