@@ -9,6 +9,7 @@ import com.leduyhung.loglibrary.Logg;
 import java.util.Calendar;
 import java.util.List;
 
+import leduyhung.me.vocaloid.model.singer.Singer;
 import leduyhung.me.vocaloid.model.song.Song;
 
 public class DatabaseManager {
@@ -16,6 +17,7 @@ public class DatabaseManager {
     public static final String TAG_SONG_DATABASE = "TAG_SONG_DATABASE";
     public static final String TAG_SONG_FAVORITE_DATABASE = "TAG_SONG_FAVORITE_DATABASE";
     public static final String TAG_SONG_SINGER_DATABASE = "TAG_SONG_SINGER_DATABASE";
+    public static final String TAG_SINGER_DATABASE = "TAG_SINGER_DATABASE";
 
     private static DatabaseManager databaseManager;
     private Context mContext;
@@ -41,6 +43,9 @@ public class DatabaseManager {
             case TAG_SONG_SINGER_DATABASE:
                 saveSong((Song) data);
                 break;
+            case TAG_SINGER_DATABASE:
+                saveSinger((Singer) data);
+                break;
         }
     }
 
@@ -57,6 +62,9 @@ public class DatabaseManager {
             case TAG_SONG_SINGER_DATABASE:
                 result = isSongSingerExpired(params[0]);
                 break;
+            case TAG_SINGER_DATABASE:
+                result = isSingerExpired();
+                break;
         }
         return result;
     }
@@ -64,6 +72,11 @@ public class DatabaseManager {
     public void deleteAllSong() {
         if (mContext != null && !((Activity) mContext).isFinishing())
             AppDatabase.newInstance(mContext).songDao().deleteAllSongs();
+    }
+
+    public void deleteAllSinger() {
+        if (mContext != null && !((Activity) mContext).isFinishing())
+            AppDatabase.newInstance(mContext).singerDao().deleteAllSinger();
     }
 
     public Song getSongByPage(int page) {
@@ -87,6 +100,12 @@ public class DatabaseManager {
         return null;
     }
 
+    public Singer getSingersByPage(int page) {
+        if (mContext != null && !((Activity) mContext).isFinishing())
+            return AppDatabase.newInstance(mContext).singerDao().getSingersByPage(page);
+        return null;
+    }
+
     private void saveSong(Song song) {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.HOUR, 1);
@@ -95,12 +114,32 @@ public class DatabaseManager {
             AppDatabase.newInstance(mContext).songDao().insertSongs(song);
     }
 
+    private void saveSinger(Singer singer) {
+
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.HOUR, 24);
+        singer.setSave_date(c.getTime());
+        if (mContext != null && !((Activity) mContext).isFinishing())
+            AppDatabase.newInstance(mContext).singerDao().insertSinger(singer);
+    }
+
     private boolean isSongExpired() {
         Calendar c = Calendar.getInstance();
         List<Integer> lstId = AppDatabase.newInstance(mContext).songDao().getSongsByTime(c.getTime().getTime());
         if (lstId == null || lstId.size() > 0 && mContext != null && !((Activity) mContext).isFinishing()) {
             AppDatabase.newInstance(mContext).songDao().deleteSongs();
             Logg.info(getClass(), TAG_SONG_DATABASE + " song is expired. It will be delete");
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isSingerExpired() {
+        Calendar c = Calendar.getInstance();
+        List<Integer> lstId = AppDatabase.newInstance(mContext).singerDao().getSingersByTime(c.getTime().getTime());
+        if (lstId == null || lstId.size() > 0) {
+            deleteAllSinger();
+            Logg.info(getClass(), TAG_SINGER_DATABASE + " singer is expired. It will be delete");
             return true;
         }
         return false;

@@ -1,25 +1,18 @@
 package leduyhung.me.vocaloid.model.song;
 
-import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
 import leduyhung.me.vocaloid.Constants;
-import leduyhung.me.vocaloid.converter.ConverterDate;
 import leduyhung.me.vocaloid.converter.ConverterListSongInfo;
-import leduyhung.me.vocaloid.db.AppDatabase;
 import leduyhung.me.vocaloid.db.DatabaseManager;
 import leduyhung.me.vocaloid.model.Base;
 import leduyhung.me.vocaloid.rest.BaseApi;
@@ -34,7 +27,7 @@ public class Song extends Base {
     @Ignore
     private transient Context mContext;
     @Ignore
-    private transient OnGetDataFromServer onGetDataFromServer;
+    private transient OnSongDataFromServer OnSongDataFromServer;
     @Ignore
     private transient Call<Song> call;
 
@@ -43,8 +36,6 @@ public class Song extends Base {
 
     @TypeConverters(ConverterListSongInfo.class)
     private ArrayList<SongInfo> data;
-    @TypeConverters(ConverterDate.class)
-    private Date save_date;
 
     public int getSingerId() {
         return singerId;
@@ -75,18 +66,10 @@ public class Song extends Base {
         this.data = data;
     }
 
-    public Date getSave_date() {
-        return save_date;
-    }
-
-    public void setSave_date(Date save_date) {
-        this.save_date = save_date;
-    }
-
     // TODO: Progress get list songs
     public void getListSong(final String name, int page) {
 
-        Song s = DatabaseManager.newInstance().create(mContext).getSongByPage(page);
+        final Song s = DatabaseManager.newInstance().create(mContext).getSongByPage(page);
         if (!DatabaseManager.newInstance().create(mContext).isExpired(DatabaseManager.TAG_SONG_DATABASE) && s != null &&
                 s.getData().size() > 0 && name == null) {
             data = s.getData();
@@ -109,11 +92,11 @@ public class Song extends Base {
                                 setCurrent_page(response.body().getCurrent_page());
                                 setTotal_page(response.body().getCurrent_page());
                             }
-                            if (onGetDataFromServer != null)
-                                onGetDataFromServer.onSuccess();
+                            if (OnSongDataFromServer != null)
+                                OnSongDataFromServer.onSuccess();
                         } else {
-                            if (onGetDataFromServer != null)
-                                onGetDataFromServer.onFail(null);
+                            if (OnSongDataFromServer != null)
+                                OnSongDataFromServer.onFail(null);
                         }
                     }
 
@@ -122,18 +105,18 @@ public class Song extends Base {
 
                         if (!ClientUtil.isConnectInternet(mContext)) {
 
-                            if (onGetDataFromServer != null)
-                                onGetDataFromServer.onFail(null);
+                            if (OnSongDataFromServer != null)
+                                OnSongDataFromServer.onFail(null);
                         } else {
 
                             if (t instanceof TimeoutException || t instanceof SocketTimeoutException || t instanceof UnknownHostException) {
 
-                                if (onGetDataFromServer != null)
-                                    onGetDataFromServer.onFail(null);
+                                if (OnSongDataFromServer != null)
+                                    OnSongDataFromServer.onFail(null);
                             } else {
 
-                                if (onGetDataFromServer != null)
-                                    onGetDataFromServer.onFail(null);
+                                if (OnSongDataFromServer != null)
+                                    OnSongDataFromServer.onFail(null);
                             }
                         }
                     }
@@ -143,9 +126,9 @@ public class Song extends Base {
     }
 
     // TODO: Progress get list song by singer
-    public void getListSongOfSinger(int page, int singerId) {
+    public void getListSongOfSinger(int page, final int singerId) {
 
-        Song s = DatabaseManager.newInstance().create(mContext).getSongSingerByPage(page, singerId);
+        final Song s = DatabaseManager.newInstance().create(mContext).getSongSingerByPage(page, singerId);
         if (!DatabaseManager.newInstance().create(mContext).isExpired(DatabaseManager.TAG_SONG_SINGER_DATABASE, singerId) &&
                 s != null && s.getData().size() > 0) {
             data = s.getData();
@@ -164,13 +147,15 @@ public class Song extends Base {
                                 setTotal_item(response.body().getTotal_item());
                                 setCurrent_page(response.body().getCurrent_page());
                                 setTotal_page(response.body().getCurrent_page());
-                                DatabaseManager.newInstance().create(mContext).save(DatabaseManager.TAG_SONG_SINGER_DATABASE, response.body());
+                                Song song = response.body();
+                                song.setSingerId(singerId);
+                                DatabaseManager.newInstance().create(mContext).save(DatabaseManager.TAG_SONG_SINGER_DATABASE, song);
                             }
-                            if (onGetDataFromServer != null)
-                                onGetDataFromServer.onSuccess();
+                            if (OnSongDataFromServer != null)
+                                OnSongDataFromServer.onSuccess();
                         } else {
-                            if (onGetDataFromServer != null)
-                                onGetDataFromServer.onFail(null);
+                            if (OnSongDataFromServer != null)
+                                OnSongDataFromServer.onFail(null);
                         }
                     }
 
@@ -179,18 +164,18 @@ public class Song extends Base {
 
                         if (!ClientUtil.isConnectInternet(mContext)) {
 
-                            if (onGetDataFromServer != null)
-                                onGetDataFromServer.onFail(null);
+                            if (OnSongDataFromServer != null)
+                                OnSongDataFromServer.onFail(null);
                         } else {
 
                             if (t instanceof TimeoutException || t instanceof SocketTimeoutException || t instanceof UnknownHostException) {
 
-                                if (onGetDataFromServer != null)
-                                    onGetDataFromServer.onFail(null);
+                                if (OnSongDataFromServer != null)
+                                    OnSongDataFromServer.onFail(null);
                             } else {
 
-                                if (onGetDataFromServer != null)
-                                    onGetDataFromServer.onFail(null);
+                                if (OnSongDataFromServer != null)
+                                    OnSongDataFromServer.onFail(null);
                             }
                         }
                     }
@@ -202,7 +187,7 @@ public class Song extends Base {
     // TODO: Progress get list song favorite
     public void getSongsFavorite(int userId, int page) {
 
-        Song s = DatabaseManager.newInstance().create(mContext).getSongFavoriteByPage(page);
+        final Song s = DatabaseManager.newInstance().create(mContext).getSongFavoriteByPage(page);
         if (!DatabaseManager.newInstance().create(mContext).isExpired(DatabaseManager.TAG_SONG_FAVORITE_DATABASE) &&
                 s != null && s.getData().size() > 0) {
             data = s.getData();
@@ -221,14 +206,16 @@ public class Song extends Base {
                                 setTotal_item(response.body().getTotal_item());
                                 setCurrent_page(response.body().getCurrent_page());
                                 setTotal_page(response.body().getCurrent_page());
+                                Song song = response.body();
+                                song.setFavorite(1);
                                 DatabaseManager.newInstance().create(mContext)
-                                        .save(DatabaseManager.TAG_SONG_FAVORITE_DATABASE, response.body());
+                                        .save(DatabaseManager.TAG_SONG_FAVORITE_DATABASE, song);
                             }
-                            if (onGetDataFromServer != null)
-                                onGetDataFromServer.onSuccess();
+                            if (OnSongDataFromServer != null)
+                                OnSongDataFromServer.onSuccess();
                         } else {
-                            if (onGetDataFromServer != null)
-                                onGetDataFromServer.onFail(null);
+                            if (OnSongDataFromServer != null)
+                                OnSongDataFromServer.onFail(null);
                         }
                     }
 
@@ -237,18 +224,18 @@ public class Song extends Base {
 
                         if (!ClientUtil.isConnectInternet(mContext)) {
 
-                            if (onGetDataFromServer != null)
-                                onGetDataFromServer.onFail(null);
+                            if (OnSongDataFromServer != null)
+                                OnSongDataFromServer.onFail(null);
                         } else {
 
                             if (t instanceof TimeoutException || t instanceof SocketTimeoutException || t instanceof UnknownHostException) {
 
-                                if (onGetDataFromServer != null)
-                                    onGetDataFromServer.onFail(null);
+                                if (OnSongDataFromServer != null)
+                                    OnSongDataFromServer.onFail(null);
                             } else {
 
-                                if (onGetDataFromServer != null)
-                                    onGetDataFromServer.onFail(null);
+                                if (OnSongDataFromServer != null)
+                                    OnSongDataFromServer.onFail(null);
                             }
                         }
                     }
@@ -271,14 +258,14 @@ public class Song extends Base {
                 ClientUtil.getPakageName(mContext), userId, base).enqueue(null);
     }
 
-    public interface OnGetDataFromServer {
+    public interface OnSongDataFromServer {
 
         void onSuccess();
 
         void onFail(String message);
     }
 
-    public void setOnGetDataFromServer(OnGetDataFromServer onGetDataFromServer) {
-        this.onGetDataFromServer = onGetDataFromServer;
+    public void setOnSongDataFromServer(OnSongDataFromServer OnSongDataFromServer) {
+        this.OnSongDataFromServer = OnSongDataFromServer;
     }
 }

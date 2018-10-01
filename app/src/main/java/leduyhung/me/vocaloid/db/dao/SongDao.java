@@ -34,7 +34,7 @@ public interface SongDao {
     @Query("SELECT id FROM " + Constants.DB.TABLE_SONG + " WHERE save_date <= (:date) AND singerId == (:singerId)")
     List<Integer> getSongsSingerByTime(long date, int singerId);
 
-    @Query("DELETE FROM " + Constants.DB.TABLE_SONG + " WHERE favorite == 0")
+    @Query("DELETE FROM " + Constants.DB.TABLE_SONG + " WHERE favorite == 1")
     void deleteFavoriteSongs();
 
     @Query("DELETE FROM " + Constants.DB.TABLE_SONG + " WHERE singerId IN (:singerId)")

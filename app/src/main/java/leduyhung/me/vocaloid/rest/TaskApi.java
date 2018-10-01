@@ -1,6 +1,7 @@
 package leduyhung.me.vocaloid.rest;
 
 import leduyhung.me.vocaloid.model.Base;
+import leduyhung.me.vocaloid.model.singer.Singer;
 import leduyhung.me.vocaloid.model.song.Song;
 import leduyhung.me.vocaloid.model.user.User;
 import retrofit2.Call;
@@ -35,4 +36,8 @@ public interface TaskApi {
     @POST("/v1/user/{userId}/songs")
     Call<Song> addDeleteSongFavorite(@Header("version") int version, @Header("pakage") String pakage, @Path("userId") int userId,
                                @Body Base base);
+
+    @GET("/v1/singers")
+    Call<Singer> getSingers(@Header("version") int version, @Header("pakage") String pakage,
+                            @Query("name") String name, @Query("page") int page);
 }

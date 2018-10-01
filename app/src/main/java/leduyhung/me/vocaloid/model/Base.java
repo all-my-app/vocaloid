@@ -2,7 +2,12 @@ package leduyhung.me.vocaloid.model;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverters;
 import android.databinding.BaseObservable;
+
+import java.util.Date;
+
+import leduyhung.me.vocaloid.converter.ConverterDate;
 
 public class Base extends BaseObservable {
 
@@ -12,6 +17,8 @@ public class Base extends BaseObservable {
     private int total_item;
     private int total_page;
     private int current_page;
+    @TypeConverters(ConverterDate.class)
+    private transient Date save_date;
 
     public int getId() {
         return id;
@@ -43,5 +50,13 @@ public class Base extends BaseObservable {
 
     public void setCurrent_page(int current_page) {
         this.current_page = current_page;
+    }
+
+    public Date getSave_date() {
+        return save_date;
+    }
+
+    public void setSave_date(Date save_date) {
+        this.save_date = save_date;
     }
 }

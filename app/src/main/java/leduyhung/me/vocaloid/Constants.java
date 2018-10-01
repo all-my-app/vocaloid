@@ -11,6 +11,7 @@ public final class Constants {
         public static final String DB_NAME = "VOCALOID_DB";
         public static final int DB_VERSION = 1;
         public static final String TABLE_SONG = "SONG_TABLE";
+        public static final String TABLE_SINGER = "SINGER_TABLE";
     }
 
     public final class Recycler {

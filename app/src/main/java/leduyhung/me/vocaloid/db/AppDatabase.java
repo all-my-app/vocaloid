@@ -8,6 +8,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import leduyhung.me.vocaloid.Constants;
+import leduyhung.me.vocaloid.db.dao.SingerDao;
 import leduyhung.me.vocaloid.db.dao.SongDao;
 import leduyhung.me.vocaloid.model.song.Song;
 
@@ -18,6 +19,7 @@ public abstract class AppDatabase extends RoomDatabase{
     private static AppDatabase appDatabase;
 
     public abstract SongDao songDao();
+    public abstract SingerDao singerDao();
 
     public static AppDatabase newInstance(Context ctx) {
 
