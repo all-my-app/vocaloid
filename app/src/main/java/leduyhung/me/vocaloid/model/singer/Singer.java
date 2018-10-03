@@ -1,16 +1,20 @@
 package leduyhung.me.vocaloid.model.singer;
 
+import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
 
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
 import leduyhung.me.vocaloid.Constants;
+import leduyhung.me.vocaloid.converter.ConverterDate;
 import leduyhung.me.vocaloid.converter.ConverterListSingerInfo;
 import leduyhung.me.vocaloid.db.DatabaseManager;
 import leduyhung.me.vocaloid.model.Base;
@@ -30,11 +34,34 @@ public class Singer extends Base {
     @Ignore
     private transient Call<Singer> call;
 
+    @ColumnInfo(index = true)
+    @PrimaryKey(autoGenerate = true)
+    private int id;
     @TypeConverters(ConverterListSingerInfo.class)
     private ArrayList<SingerInfo> data;
 
-    private OnSingerDataFromServer onSingerDataFromServer;
+    @TypeConverters(ConverterDate.class)
+    private Date save_date;
 
+    @Ignore
+    private transient OnSingerDataFromServer onSingerDataFromServer;
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Date getSave_date() {
+        return save_date;
+    }
+
+    public void setSave_date(Date save_date) {
+        this.save_date = save_date;
+    }
     public ArrayList<SingerInfo> getData() {
         return data;
     }

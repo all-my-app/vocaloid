@@ -10,9 +10,10 @@ import android.support.annotation.NonNull;
 import leduyhung.me.vocaloid.Constants;
 import leduyhung.me.vocaloid.db.dao.SingerDao;
 import leduyhung.me.vocaloid.db.dao.SongDao;
+import leduyhung.me.vocaloid.model.singer.Singer;
 import leduyhung.me.vocaloid.model.song.Song;
 
-@Database(entities = Song.class, version = Constants.DB.DB_VERSION,
+@Database(entities = {Song.class, Singer.class}, version = Constants.DB.DB_VERSION,
         exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase{
 

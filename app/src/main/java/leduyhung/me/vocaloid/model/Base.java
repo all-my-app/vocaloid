@@ -11,22 +11,9 @@ import leduyhung.me.vocaloid.converter.ConverterDate;
 
 public class Base extends BaseObservable {
 
-    @ColumnInfo(index = true)
-    @PrimaryKey(autoGenerate = true)
-    private int id;
     private int total_item;
     private int total_page;
     private int current_page;
-    @TypeConverters(ConverterDate.class)
-    private transient Date save_date;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getTotal_item() {
         return total_item;
@@ -50,13 +37,5 @@ public class Base extends BaseObservable {
 
     public void setCurrent_page(int current_page) {
         this.current_page = current_page;
-    }
-
-    public Date getSave_date() {
-        return save_date;
-    }
-
-    public void setSave_date(Date save_date) {
-        this.save_date = save_date;
     }
 }
