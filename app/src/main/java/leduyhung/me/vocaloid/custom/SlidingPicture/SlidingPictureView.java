@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
@@ -58,6 +59,11 @@ public class SlidingPictureView extends HorizontalScrollView {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         initLayout();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        return false;
     }
 
     private void getAttribute(Context mContext, AttributeSet attrs) {

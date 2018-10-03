@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Vocaloid</string>
+
+    <string name="welcome_intro_1">Best free music for vocaloid fan, nightcore fan.</string>
+    <string name="welcome_intro_2">Free music download, pin song you love.</string>
+    <string name="welcome_intro_3">Collections of beauty singer dance in the anime world and real world. Choice it and display when listen your music.</string>
+    <string name="welcome_text_back">back</string>
+    <string name="welcome_text_next">next</string>
 </resources>
