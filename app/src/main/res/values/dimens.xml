@@ -8,8 +8,12 @@
 
     <dimen name="margin_small">10dp</dimen>
     <dimen name="margin_normal">20dp</dimen>
+    <dimen name="margin_large">30dp</dimen>
 
     <dimen name="welcome_height_layout_content">140dp</dimen>
     <dimen name="welcome_width_text_button">80dp</dimen>
     <dimen name="welcome_height_text_button">40dp</dimen>
+
+    <dimen name="main_height_item_menu">80dp</dimen>
+    <dimen name="main_size_icon_item_menu">40dp</dimen>
 </resources>

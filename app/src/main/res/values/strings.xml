@@ -6,4 +6,10 @@
     <string name="welcome_intro_3">Collections of beauty singer dance in the anime world and real world. Choice it and display when listen your music.</string>
     <string name="welcome_text_back">back</string>
     <string name="welcome_text_next">next</string>
+
+    <string name="main_menu_item_home">Home</string>
+    <string name="main_menu_item_wallpaper">Wallpaper</string>
+    <string name="main_menu_item_feedback">Feedback</string>
+    <string name="main_menu_item_login">Login</string>
+    <string name="main_menu_item_logout">Logout</string>
 </resources>
