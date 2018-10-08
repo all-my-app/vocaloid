@@ -6,7 +6,7 @@
                 android:background="@color/colorDrawer">
 
     <RelativeLayout
-        android:id="@+id/relative_listen"
+        android:id="@+id/relative_home"
         android:layout_width="match_parent"
         android:layout_height="@dimen/main_height_item_menu"
         android:background="?selectableItemBackground"
@@ -45,7 +45,7 @@
         android:id="@+id/relative_wallpaper"
         android:layout_width="match_parent"
         android:layout_height="@dimen/main_height_item_menu"
-        android:layout_below="@+id/relative_listen"
+        android:layout_below="@+id/relative_home"
         android:background="?selectableItemBackground"
         android:clickable="true"
         android:focusable="true">
@@ -131,7 +131,8 @@
         android:layout_alignParentBottom="true"
         android:background="?selectableItemBackground"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        android:visibility="visible">
 
         <ImageView
             android:id="@+id/img_ic_login"
@@ -161,14 +162,14 @@
         android:background="?selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:visibility="gone">
+        android:visibility="invisible">
 
         <TextView
             android:id="@+id/txt_logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_large"
-            android:layout_marginTop="@dimen/margin_normal"
+            android:layout_marginTop="@dimen/margin_small"
             android:layout_alignParentTop="true"
             android:text="@string/main_menu_item_logout"
             android:textColor="@color/colorWhite"
@@ -179,9 +180,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_large"
+            android:layout_marginTop="@dimen/margin_small"
             android:layout_below="@+id/txt_logout"
-            android:textColor="@color/colorWhite"
-            android:textSize="@dimen/text_size_normal"/>
+            android:textColor="@color/colorYellow"
+            android:textSize="@dimen/text_size_small"/>
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/img_avatar"

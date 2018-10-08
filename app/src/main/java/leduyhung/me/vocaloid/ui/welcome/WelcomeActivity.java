@@ -1,5 +1,6 @@
 package leduyhung.me.vocaloid.ui.welcome;
 
+import android.os.Build;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -79,17 +80,23 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
         switch (indexContent) {
             case 0:
                 tBack.setVisibility(View.GONE);
-                TransitionManager.beginDelayedTransition((ViewGroup) tContent.getRootView());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    TransitionManager.beginDelayedTransition((ViewGroup) tContent.getRootView());
+                }
                 tContent.setText(getResources().getString(R.string.welcome_intro_1));
                 break;
             case 1:
                 tBack.setVisibility(View.VISIBLE);
-                TransitionManager.beginDelayedTransition((ViewGroup) tContent.getRootView());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    TransitionManager.beginDelayedTransition((ViewGroup) tContent.getRootView());
+                }
                 tContent.setText(getResources().getString(R.string.welcome_intro_2));
                 break;
             case 2:
                 tBack.setVisibility(View.VISIBLE);
-                TransitionManager.beginDelayedTransition((ViewGroup) tContent.getRootView());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    TransitionManager.beginDelayedTransition((ViewGroup) tContent.getRootView());
+                }
                 tContent.setText(getResources().getString(R.string.welcome_intro_3));
                 break;
             default:

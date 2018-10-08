@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Vocaloid</string>
+    <string name="facebook_app_id">301571023766789</string>
+    <string name="fb_login_protocol_scheme">fb301571023766789</string>
 
     <string name="welcome_intro_1">Best free music for vocaloid fan, nightcore fan.</string>
     <string name="welcome_intro_2">Free music download, pin song you love.</string>

@@ -1,24 +1,32 @@
 package leduyhung.me.vocaloid.model.user;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 
 import org.greenrobot.eventbus.EventBus;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import leduyhung.me.vocaloid.rest.BaseApi;
 import leduyhung.me.vocaloid.util.ClientUtil;
 import leduyhung.me.vocaloid.util.GsonUtil;
 import leduyhung.me.vocaloid.util.PreferenceUtil;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 public class User implements FacebookCallback<LoginResult> {
@@ -33,6 +41,8 @@ public class User implements FacebookCallback<LoginResult> {
     private String access_token;
     private UserInfo data;
 
+    private transient OnUserCallback onUserCallback;
+
     public static User newInstance() {
 
         if (instance == null)
@@ -40,9 +50,10 @@ public class User implements FacebookCallback<LoginResult> {
         return instance;
     }
 
-    public void create(Context mContext) {
+    public User create(Context mContext) {
 
         this.mContext = mContext;
+        return instance;
     }
 
     User() {
@@ -52,8 +63,21 @@ public class User implements FacebookCallback<LoginResult> {
     }
 
     @Override
-    public void onSuccess(LoginResult loginResult) {
+    public void onSuccess(final LoginResult loginResult) {
 
+//        GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+//            @Override
+//            public void onCompleted(JSONObject object, GraphResponse response) {
+//
+//
+//            }
+//        });
+//        Bundle parameters = new Bundle();
+//        parameters.putString("fields", "id,name,email,gender, birthday");
+//        request.setParameters(parameters);
+//        request.executeAsync();
+        setAccess_token(loginResult.getAccessToken().getToken());
+        loginToServer();
     }
 
     @Override
@@ -85,6 +109,16 @@ public class User implements FacebookCallback<LoginResult> {
         return data;
     }
 
+    public void login() {
+
+        if (mContext instanceof Activity) {
+            callbackManager = CallbackManager.Factory.create();
+            LoginManager.getInstance().logInWithReadPermissions((Activity) mContext, Arrays.asList("user_photos", "email",
+                    "user_birthday", "public_profile"));
+            LoginManager.getInstance().registerCallback(callbackManager, this);
+        }
+    }
+
     public void logout() {
 
         PreferenceUtil.newInstance().build(mContext).clearByName(KEY_CACHE_USER);
@@ -101,29 +135,47 @@ public class User implements FacebookCallback<LoginResult> {
 
         call = BaseApi.request().login(ClientUtil.getVersionCode(mContext),
                 ClientUtil.getPakageName(mContext), this);
-        try {
-            Response<User> response = call.execute();
-            if (response.isSuccessful()) {
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
 
-                this.data = response.body().getUserData();
-            } else {
-
+                    data = response.body().getUserData();
+                    PreferenceUtil.newInstance().build(mContext).putString(KEY_CACHE_USER, GsonUtil.newInstance().toJson(response.body()));
+                    if (onUserCallback != null)
+                        onUserCallback.onLoginComplete();
+                } else {
+                    logout();
+                }
             }
-        } catch (IOException e) {
-            if (!ClientUtil.isConnectInternet(mContext)) {
 
-            } else {
+            @Override
+            public void onFailure(Call<User> call, Throwable e) {
 
-                if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
+                logout();
+                if (!ClientUtil.isConnectInternet(mContext)) {
 
                 } else {
 
+                    if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
+
+                    } else {
+
+                    }
                 }
             }
-            logout();
-        } finally {
-            call = null;
-        }
+        });
+    }
 
+    public interface OnUserCallback {
+        void onLoginComplete();
+    }
+
+    public void registerCallback(OnUserCallback onUserCallback) {
+        this.onUserCallback = onUserCallback;
+    }
+
+    public void unRegisterCallback() {
+        this.onUserCallback = null;
     }
 }
