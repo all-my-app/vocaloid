@@ -7,8 +7,11 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
@@ -22,7 +25,7 @@ import java.util.TimerTask;
 
 import leduyhung.me.vocaloid.R;
 
-public class SlidingPictureView extends HorizontalScrollView {
+public class SlidingPictureView extends HorizontalScrollView implements ViewTreeObserver.OnGlobalLayoutListener {
 
     private final int DURATION_TRANSITION = 17000;
     private final int DURATION_FADEIN = 3000;
@@ -58,7 +61,35 @@ public class SlidingPictureView extends HorizontalScrollView {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
-        initLayout();
+
+    }
+
+    @Override
+    protected void onVisibilityChanged(View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (visibility == VISIBLE) {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                if (animSet != null && animSet.isPaused()) {
+                    animSet.resume();
+                }
+            }
+        } else {
+            if (animSet != null && animSet.isRunning()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    animSet.pause();
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        if (animSet != null) {
+            animSet.cancel();
+        }
     }
 
     @Override
@@ -77,6 +108,7 @@ public class SlidingPictureView extends HorizontalScrollView {
         pictures.add(mContext.getResources().getDrawable(R.drawable.welcome3));
         pictures.add(mContext.getResources().getDrawable(R.drawable.welcome4));
         isRun = true;
+        getViewTreeObserver().addOnGlobalLayoutListener(this);
     }
 
     private void initLayout() {
@@ -167,5 +199,11 @@ public class SlidingPictureView extends HorizontalScrollView {
             animSet.cancel();
             System.gc();
         }
+    }
+
+    @Override
+    public void onGlobalLayout() {
+        initLayout();
+        getViewTreeObserver().removeOnGlobalLayoutListener(this);
     }
 }

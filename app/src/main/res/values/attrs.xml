@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="IndicatorView">
+        <attr name="indicator_dot_radius" format="dimension"/>
+        <attr name="indicator_dot_color" format="color"/>
+        <attr name="indicator_dot_distance" format="dimension"/>
+        <attr name="indicator_dot_number" format="integer"/>
+    </declare-styleable>
+</resources>

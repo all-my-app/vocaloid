@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.leduyhung.loglibrary.Logg;
 
 import leduyhung.me.vocaloid.R;
+import leduyhung.me.vocaloid.custom.Indicator.IndicatorView;
 import leduyhung.me.vocaloid.custom.SlidingPicture.SlidingPictureView;
 
 public class WelcomeActivity extends AppCompatActivity implements View.OnClickListener {
@@ -21,6 +22,7 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
 
     private TextView tContent, tBack, tNext;
     private SlidingPictureView slidingPictureView;
+    private IndicatorView indicatorView;
 
     private int indexContent;
 
@@ -35,7 +37,7 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
             indexContent = 0;
         }
         initView();
-        showContentByIndex();
+        showContentByIndex(false);
     }
 
     @Override
@@ -51,12 +53,12 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.txt_back:
                 if (indexContent > 0)
                     indexContent--;
-                showContentByIndex();
+                showContentByIndex(true);
                 break;
             case R.id.txt_next:
                 if (indexContent < 4)
                     indexContent++;
-                showContentByIndex();
+                showContentByIndex(true);
                 break;
         }
     }
@@ -71,15 +73,18 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
         tContent = findViewById(R.id.txt_intro);
         tBack = findViewById(R.id.txt_back);
         tNext = findViewById(R.id.txt_next);
+        indicatorView = findViewById(R.id.indicator);
         slidingPictureView = findViewById(R.id.sliding_picture);
         tBack.setOnClickListener(this);
         tNext.setOnClickListener(this);
+        indicatorView.create();
     }
 
-    private void showContentByIndex() {
+    private void showContentByIndex(boolean needAnimation) {
+        indicatorView.setCurrentIndex(indexContent, needAnimation);
         switch (indexContent) {
             case 0:
-                tBack.setVisibility(View.GONE);
+                tBack.setVisibility(View.INVISIBLE);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                     TransitionManager.beginDelayedTransition((ViewGroup) tContent.getRootView());
                 }
