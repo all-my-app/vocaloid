@@ -16,6 +16,14 @@ public class HomeViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int i) {
+        switch (i) {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+        }
         return null;
     }
 

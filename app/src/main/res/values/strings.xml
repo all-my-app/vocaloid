@@ -3,7 +3,13 @@
     <string name="facebook_app_id">301571023766789</string>
     <string name="fb_login_protocol_scheme">fb301571023766789</string>
 
-    <string name="welcome_intro_1">Best free music for vocaloid fan, nightcore fan.</string>
+    <string name="message_no_internet">No internet connection !</string>
+    <string name="message_no_data_found">No data found.</string>
+    <string name="message_timeout_request">The request timed out.</string>
+    <string name="message_server_error">Server error.</string>
+    <string name="message_need_update_app">New version app available, please upgrade it to the latest version.</string>
+
+    <string name="welcome_intro_1">Best free music for VOCALOID fan, NIGHTCORE fan.</string>
     <string name="welcome_intro_2">Free music download, pin song you love.</string>
     <string name="welcome_intro_3">Collections of beauty singer dance in the anime world and real world. Choice it and display when listen your music.</string>
     <string name="welcome_text_back">back</string>
