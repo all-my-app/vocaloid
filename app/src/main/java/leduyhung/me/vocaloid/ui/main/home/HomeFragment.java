@@ -7,15 +7,20 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.ViewTreeObserver;
 
 import leduyhung.me.vocaloid.BaseFragment;
 import leduyhung.me.vocaloid.R;
 
 public class HomeFragment extends BaseFragment {
 
+    private final String KEY_HOME_NEED_UPDATE_ADAPTER = "KEY_HOME_NEED_UPDATE_ADAPTER";
+
     private TabLayout tabLayout;
     private ViewPager vPager;
     private HomeViewPagerAdapter adap;
+
+    private boolean needUpdateAdap = false;
 
     @Override
     public void onAttach(Context context) {
@@ -26,6 +31,8 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null)
+            needUpdateAdap = savedInstanceState.getBoolean(KEY_HOME_NEED_UPDATE_ADAPTER);
     }
 
     @Override
@@ -44,18 +51,29 @@ public class HomeFragment extends BaseFragment {
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
+        needUpdateAdap = true;
+        outState.putBoolean(KEY_HOME_NEED_UPDATE_ADAPTER, needUpdateAdap);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        adap.destroy();
     }
 
     private void initViewPager() {
         adap = new HomeViewPagerAdapter(getChildFragmentManager(), mContext);
         vPager.setAdapter(adap);
         vPager.setOffscreenPageLimit(2);
+        vPager.getViewTreeObserver().addOnGlobalFocusChangeListener(new ViewTreeObserver.OnGlobalFocusChangeListener() {
+            @Override
+            public void onGlobalFocusChanged(View view, View view1) {
+                vPager.getViewTreeObserver().removeOnGlobalFocusChangeListener(this);
+                if (needUpdateAdap)
+                    adap.update();
+            }
+        });
     }
 
     private void initTabLayout() {

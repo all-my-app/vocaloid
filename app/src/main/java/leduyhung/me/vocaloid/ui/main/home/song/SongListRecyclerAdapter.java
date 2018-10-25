@@ -8,13 +8,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 
 import leduyhung.me.vocaloid.Constants;
 import leduyhung.me.vocaloid.R;
 import leduyhung.me.vocaloid.model.song.SongInfo;
+import leduyhung.me.vocaloid.util.ImageUtil;
 
 public class SongListRecyclerAdapter extends RecyclerView.Adapter {
 
@@ -51,7 +55,13 @@ public class SongListRecyclerAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         if (viewHolder instanceof ItemView) {
-
+            ItemView itemView = (ItemView) viewHolder;
+            itemView.tName.setText(arrData.get(viewHolder.getAdapterPosition()).getName());
+            itemView.tSinger.setText(arrData.get(viewHolder.getAdapterPosition()).getSinger());
+            itemView.tDuration.setText(arrData.get(viewHolder.getAdapterPosition()).getStringDuration());
+            ImageUtil.newInstance().loadImageFromNet(mContext, itemView.iThumbnail,
+                    arrData.get(viewHolder.getAdapterPosition()).getThumbnail());
+            itemView.rItem.setOnClickListener(handleItemClick(viewHolder.getAdapterPosition()));
         } else {
 
         }
@@ -60,6 +70,16 @@ public class SongListRecyclerAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemCount() {
         return arrData.size();
+    }
+
+    private View.OnClickListener handleItemClick(final int position) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EventBus.getDefault().post(new MessageForListSongFragment(MessageForListSongFragment.CODE_SONG_LIST_ADAPTER_CLICK,
+                        arrData, position));
+            }
+        };
     }
 
     public void update(ArrayList<SongInfo> data, boolean override) {
@@ -89,11 +109,18 @@ public class SongListRecyclerAdapter extends RecyclerView.Adapter {
 
     private class ItemView extends RecyclerView.ViewHolder {
 
+        private RelativeLayout rItem;
         private TextView tName, tSinger, tDuration;
         private ImageView iThumbnail;
 
         public ItemView(View itemView) {
             super(itemView);
+
+            tName = itemView.findViewById(R.id.txt_name);
+            tSinger = itemView.findViewById(R.id.txt_singer);
+            iThumbnail = itemView.findViewById(R.id.img_thumbnail);
+            tDuration = itemView.findViewById(R.id.txt_duration);
+            rItem = itemView.findViewById(R.id.relative_item);
         }
     }
 

@@ -1,4 +1,8 @@
-package leduyhung.me.vocaloid.model.song;
+package leduyhung.me.vocaloid.ui.main.home.song;
+
+import java.util.ArrayList;
+
+import leduyhung.me.vocaloid.model.song.SongInfo;
 
 public class MessageForListSongFragment {
 
@@ -12,11 +16,19 @@ public class MessageForListSongFragment {
     public static final int CODE_SONG_LIST_ADAPTER_CLICK = 107;
 
     private int code;
+    private int index;
     private String message;
+    private ArrayList<SongInfo> songInfos;
 
     public MessageForListSongFragment(int code, String message) {
         this.code = code;
         this.message = message;
+    }
+
+    public MessageForListSongFragment(int code, ArrayList<SongInfo> songInfos, int index) {
+        this.code = code;
+        this.songInfos = songInfos;
+        this.index = index;
     }
 
     public int getCode() {
@@ -25,5 +37,13 @@ public class MessageForListSongFragment {
 
     public String getMessage() {
         return message;
+    }
+
+    public ArrayList<SongInfo> getSongInfos() {
+        return songInfos;
+    }
+
+    public int getIndex() {
+        return index;
     }
 }

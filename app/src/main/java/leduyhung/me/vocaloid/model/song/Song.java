@@ -23,6 +23,7 @@ import leduyhung.me.vocaloid.converter.ConverterListSongInfo;
 import leduyhung.me.vocaloid.db.DatabaseManager;
 import leduyhung.me.vocaloid.model.Base;
 import leduyhung.me.vocaloid.rest.BaseApi;
+import leduyhung.me.vocaloid.ui.main.home.song.MessageForListSongFragment;
 import leduyhung.me.vocaloid.util.ClientUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,6 +47,9 @@ public class Song extends Base {
 
     @TypeConverters(ConverterListSongInfo.class)
     private ArrayList<SongInfo> data;
+
+    public Song() {
+    }
 
     public Song(Context mContext) {
         this.mContext = mContext;
@@ -98,6 +102,10 @@ public class Song extends Base {
         if (!DatabaseManager.newInstance().create(mContext).isExpired(DatabaseManager.TAG_SONG_DATABASE) && s != null &&
                 s.getData().size() > 0 && name == null) {
             data = s.getData();
+            setTotal_item(s.getTotal_item());
+            setCurrent_page(s.getCurrent_page());
+            setTotal_page(s.getTotal_page());
+            EventBus.getDefault().post(new MessageForListSongFragment(MessageForListSongFragment.CODE_LOAD_LIST_SONG_SUCCESS, ""));
         } else {
 
             if (call == null || call.isCanceled()) {
@@ -116,7 +124,7 @@ public class Song extends Base {
                             setTotal_item(response.body().getTotal_item());
                             setCurrent_page(response.body().getCurrent_page());
                             setTotal_page(response.body().getCurrent_page());
-                            EventBus.getDefault().post(new MessageForListSongFragment(MessageForListSongFragment.CODE_LOAD_LIST_SONG_SUCCESS, null));
+                            EventBus.getDefault().post(new MessageForListSongFragment(MessageForListSongFragment.CODE_LOAD_LIST_SONG_SUCCESS, ""));
 
                         } else {
 

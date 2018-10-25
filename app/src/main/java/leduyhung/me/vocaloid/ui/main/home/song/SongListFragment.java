@@ -9,14 +9,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import com.leduyhung.loglibrary.Logg;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import leduyhung.me.vocaloid.BaseFragment;
 import leduyhung.me.vocaloid.R;
-import leduyhung.me.vocaloid.model.song.MessageForListSongFragment;
 import leduyhung.me.vocaloid.model.song.Song;
+import leduyhung.me.vocaloid.ui.main.MessageForMainActivity;
 
 public class SongListFragment extends BaseFragment {
 
@@ -38,6 +40,7 @@ public class SongListFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
         song = new Song(mContext);
         currentPage = 1;
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -52,7 +55,6 @@ public class SongListFragment extends BaseFragment {
         super.onActivityCreated(savedInstanceState);
         initRecycler();
         getDataFromServer(null, currentPage);
-        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -67,6 +69,7 @@ public class SongListFragment extends BaseFragment {
         switch (message.getCode()) {
             case MessageForListSongFragment.CODE_LOAD_LIST_SONG_SUCCESS:
                 adap.update(song.getData(), true);
+                Logg.error(getClass(), "song data size: " + song.getData().size() + " with current page: " + song.getCurrent_page());
                 break;
             case MessageForListSongFragment.CODE_LOAD_MORE_LIST_SONG_SUCCESS:
                 adap.update(song.getData(), false);
@@ -87,6 +90,8 @@ public class SongListFragment extends BaseFragment {
                 setTextNoData(message.getMessage());
                 break;
             case MessageForListSongFragment.CODE_SONG_LIST_ADAPTER_CLICK:
+                Logg.error(getClass(), "song adapter click: " + message.getSongInfos().size() + " index = " + message.getIndex());
+                EventBus.getDefault().post(new MessageForMainActivity(MessageForMainActivity.CODE_PLAY_MUSIC, message.getSongInfos(), message.getIndex()));
                 break;
         }
     }

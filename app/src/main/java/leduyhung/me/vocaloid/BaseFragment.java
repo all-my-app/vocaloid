@@ -19,7 +19,7 @@ public class BaseFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        this.mContext = mContext;
+        this.mContext = context;
     }
 
     @Nullable
