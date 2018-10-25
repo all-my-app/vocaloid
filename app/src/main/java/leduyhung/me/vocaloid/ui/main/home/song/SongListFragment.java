@@ -69,9 +69,11 @@ public class SongListFragment extends BaseFragment {
         switch (message.getCode()) {
             case MessageForListSongFragment.CODE_LOAD_LIST_SONG_SUCCESS:
                 adap.update(song.getData(), true);
+                EventBus.getDefault().post(new MessageForMainActivity(MessageForMainActivity.CODE_LOAD_DATA_MUSIC, song.getData(), 0));
                 Logg.error(getClass(), "song data size: " + song.getData().size() + " with current page: " + song.getCurrent_page());
                 break;
             case MessageForListSongFragment.CODE_LOAD_MORE_LIST_SONG_SUCCESS:
+                EventBus.getDefault().post(new MessageForMainActivity(MessageForMainActivity.CODE_LOAD_DATA_MUSIC, song.getData(), 0));
                 adap.update(song.getData(), false);
                 break;
             case MessageForListSongFragment.CODE_SEARCH_LIST_SONG_SUCCESS:

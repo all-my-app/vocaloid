@@ -22,6 +22,8 @@ import leduyhung.me.vocaloid.R;
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class PlayerService extends MediaBrowserServiceCompat {
 
+    public static final String KEY_INDEX_PLAYER = "KEY_INDEX_PLAYER";
+
     private MediaSessionCompat mediaSession;
     private PlaybackStateCompat.Builder playBackState;
     private PlayerFactory playerFactory;
@@ -101,20 +103,15 @@ public class PlayerService extends MediaBrowserServiceCompat {
         }
 
         @Override
-        public void onPlay() {
-            Logg.error(PlayerService.class, "onPlay");
-
+        public void onPlayFromUri(Uri uri, Bundle extras) {
             if (mPlaylist.isEmpty() || !mediaSession.isActive())
                 return;
-
-            // TODO: play muisc
-
-            playerFactory.playSequence(0);
-        }
-
-        @Override
-        public void onPlayFromUri(Uri uri, Bundle extras) {
-            playerFactory.play(uri);
+            Logg.error(PlayerService.class, "onPlayFromUri");
+            if (extras == null)
+                playerFactory.play(uri);
+            else {
+                playerFactory.playSequence(extras != null ? extras.getInt(KEY_INDEX_PLAYER) : 0);
+            }
         }
 
         @Override
