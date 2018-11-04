@@ -3,11 +3,16 @@ package leduyhung.me.vocaloid.custom.SlidingLayout;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.app.Activity;
+import android.arch.persistence.room.Transaction;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+import android.transition.TransitionManager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,13 +35,15 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
 
     private Context mContext;
 
+    private FrameLayout hostLayout;
     private LinearLayout linearParent;
     private FrameLayout frameContent;
-    private View vOverlay;
+    private View vOverlay, vToHideContent, vShadow;
 
-    private int width, height, heightToTouch;
+    private int width, height, heightShadow, heightToTouch;
     private float maxOverlay;
     private int maxScroll, currentY;
+    private boolean lockScroll;
 
     private SlidingState.STATE state;
 
@@ -86,15 +93,18 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
 
         currentY = getScrollY();
         vOverlay.setAlpha(calculateAlphaOverlay(currentY));
+        vShadow.setAlpha(calculateAlphaShadow(currentY));
         if (listener != null)
             listener.onScrollChange(currentY, state);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+        if (lockScroll)
+            return false;
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if (state == SlidingState.STATE.SCROLLING) {
+                if (state == SlidingState.STATE.SCROLLING || (state == SlidingState.STATE.COLLAPSE && ev.getY() < vToHideContent.getHeight())) {
                     return false;
                 }
                 break;
@@ -112,30 +122,45 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
 
         }
 
+        heightShadow = mContext.getResources().getDimensionPixelOffset(R.dimen.height_view_shadow);
         maxOverlay = 0.8f;
-        heightToTouch = 0;
         state = SlidingState.STATE.COLLAPSE;
+        lockScroll = false;
         getViewTreeObserver().addOnScrollChangedListener(this);
     }
 
     private void initView() {
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        hostLayout = new FrameLayout(mContext);
+        hostLayout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
         linearParent = new LinearLayout(mContext);
         linearParent.setOrientation(LinearLayout.VERTICAL);
-        linearParent.setLayoutParams(layoutParams);
+        linearParent.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        vToHideContent = new View(mContext);
+        vToHideContent.setLayoutParams(new LayoutParams(width, height - heightToTouch - heightShadow));
+
         vOverlay = new View(mContext);
-        LayoutParams params = new LayoutParams(width, height - heightToTouch);
-        vOverlay.setLayoutParams(params);
+        vOverlay.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         vOverlay.setBackgroundColor(mContext.getResources().getColor(R.color.colorblack));
         vOverlay.setAlpha(0f);
+
+        vShadow = new View(mContext);
+        vShadow.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, heightShadow));
+        vShadow.setBackground(mContext.getResources().getDrawable(R.drawable.bg_line_shadow_sliding));
+
         frameContent = new FrameLayout(mContext);
         frameContent.setId(ID_FRAME_CONTENT);
-        frameContent.setBackgroundColor(mContext.getResources().getColor(R.color.colorAccent));
-        frameContent.setLayoutParams(params);
-        linearParent.addView(vOverlay);
+        frameContent.setLayoutParams(new LayoutParams(width, height));
+
+        linearParent.addView(vToHideContent);
+        linearParent.addView(vShadow);
         linearParent.addView(frameContent);
-        addView(linearParent);
+
+        hostLayout.addView(vOverlay);
+        hostLayout.addView(linearParent);
+
+        addView(hostLayout);
     }
 
     private float calculateAlphaOverlay(int y) {
@@ -143,18 +168,23 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
         return y * maxOverlay / maxScroll;
     }
 
+    private float calculateAlphaShadow(int y) {
+
+        return 1 - ((float) y / (float) maxScroll);
+    }
+
     private void handleScrollWhenTouch() {
 
         if (state == SlidingState.STATE.EXPANSE) {
-            if (currentY < maxScroll - POINT_TO_SCROLL_CHANGE_STATE)
+            Logg.error(getClass(), currentY + " -- " + maxScroll);
+            if (currentY < vToHideContent.getHeight() - POINT_TO_SCROLL_CHANGE_STATE)
                 close();
             else
                 open();
         } else if (state == SlidingState.STATE.COLLAPSE) {
             if (currentY > POINT_TO_SCROLL_CHANGE_STATE) {
                 open();
-            }
-            else {
+            } else {
                 close();
             }
         } else {
@@ -212,6 +242,27 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.add(ID_FRAME_CONTENT, fragment).addToBackStack(fragment.getTag());
         transaction.commit();
+    }
+
+    public void setHeightToTouch(int heightToTouch) {
+
+        if (state == SlidingState.STATE.COLLAPSE) {
+            this.heightToTouch = heightToTouch;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                TransitionManager.beginDelayedTransition(this);
+            }
+            vToHideContent.getLayoutParams().height = height - heightToTouch - heightShadow;
+            vToHideContent.setLayoutParams(vToHideContent.getLayoutParams());
+        }
+    }
+
+    public void setLockScroll(boolean lock) {
+        this.lockScroll = lock;
+    }
+
+    public boolean isLockScroll() {
+
+        return lockScroll;
     }
 
     public void setSlidingLayoutListener(SlidingLayoutListener listener) {
