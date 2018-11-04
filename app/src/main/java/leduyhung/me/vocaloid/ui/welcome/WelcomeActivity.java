@@ -1,5 +1,6 @@
 package leduyhung.me.vocaloid.ui.welcome;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
@@ -13,8 +14,10 @@ import android.widget.Toast;
 import com.leduyhung.loglibrary.Logg;
 
 import leduyhung.me.vocaloid.R;
+import leduyhung.me.vocaloid.TestActivity;
 import leduyhung.me.vocaloid.custom.Indicator.IndicatorView;
 import leduyhung.me.vocaloid.custom.SlidingPicture.SlidingPictureView;
+import leduyhung.me.vocaloid.ui.main.MainActivity;
 
 public class WelcomeActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -56,9 +59,15 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
                 showContentByIndex(true);
                 break;
             case R.id.txt_next:
-                if (indexContent < 4)
+                if (indexContent < 2) {
                     indexContent++;
-                showContentByIndex(true);
+                    showContentByIndex(true);
+                } else {
+//                    tNext.setEnabled(false);
+                    slidingPictureView.destroy();
+                    startActivity(new Intent(this, MainActivity.class));
+//                    finish();
+                }
                 break;
         }
     }

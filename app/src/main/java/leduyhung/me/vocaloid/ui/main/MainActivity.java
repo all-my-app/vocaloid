@@ -2,6 +2,7 @@ package leduyhung.me.vocaloid.ui.main;
 
 import android.content.Intent;
 import android.os.Build;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private HomeFragment homeFragment;
 
     private PlayerBrowser playerBrowser;
+
+    private Thread threadAddFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,15 +174,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void addHomeFragment() {
 
-        if (homeFragment == null)
-            homeFragment = new HomeFragment();
-        FragmentManager manager = getSupportFragmentManager();
+        if (threadAddFragment == null || !threadAddFragment.isAlive()) {
+            threadAddFragment = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Looper.getMainLooper();
+                    if (homeFragment == null)
+                        homeFragment = new HomeFragment();
+                    final FragmentManager manager = getSupportFragmentManager();
 
-        if (manager.findFragmentById(R.id.frame_contain) instanceof HomeFragment)
-            return;
-
-        FragmentTransaction transaction = manager.beginTransaction();
-        transaction.replace(R.id.frame_contain, homeFragment);
-        transaction.commit();
+                    if (manager.findFragmentById(R.id.frame_contain) instanceof HomeFragment)
+                        return;
+                    FragmentTransaction transaction = manager.beginTransaction();
+                    transaction.replace(R.id.frame_contain, homeFragment);
+                    transaction.commit();
+                    threadAddFragment = null;
+                }
+            });
+            threadAddFragment.start();
+        }
     }
 }

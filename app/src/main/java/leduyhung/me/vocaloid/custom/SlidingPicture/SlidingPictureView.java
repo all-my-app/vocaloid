@@ -201,6 +201,12 @@ public class SlidingPictureView extends HorizontalScrollView implements ViewTree
         }
     }
 
+    public void destroy() {
+        stop();
+        layoutParent.removeAllViews();
+        pictures = null;
+    }
+
     @Override
     public void onGlobalLayout() {
         initLayout();
