@@ -2,7 +2,7 @@ package leduyhung.me.vocaloid.custom.SlidingLayout;
 
 public class SlidingState {
 
-    enum STATE {
+    public enum STATE {
         EXPANSE, COLLAPSE, SCROLLING
     }
 }

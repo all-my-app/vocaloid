@@ -30,7 +30,6 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
     private FrameLayout frameContent;
     private View vOverlay;
 
-    private boolean isTouch;
     private int width, height, heightToTouch;
     private float maxOverlay;
     private int maxScroll, currentY;
@@ -59,7 +58,7 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
         super.onLayout(changed, l, t, r, b);
         this.width = getWidth();
         this.height = getHeight();
-        maxScroll = height - heightToTouch;
+        maxScroll = height;
     }
 
     @Override
@@ -122,7 +121,7 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
         linearParent.setOrientation(LinearLayout.VERTICAL);
         linearParent.setLayoutParams(layoutParams);
         vOverlay = new View(mContext);
-        LayoutParams params = new LayoutParams(width, height);
+        LayoutParams params = new LayoutParams(width, height - heightToTouch);
         vOverlay.setLayoutParams(params);
         vOverlay.setBackgroundColor(mContext.getResources().getColor(R.color.colorblack));
         vOverlay.setAlpha(0f);
@@ -142,15 +141,17 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
     private void handleScrollWhenTouch() {
 
         if (state == SlidingState.STATE.EXPANSE) {
-            if (currentY > POINT_TO_SCROLL_CHANGE_STATE)
+            if (currentY < maxScroll - POINT_TO_SCROLL_CHANGE_STATE)
                 close();
             else
                 open();
         } else if (state == SlidingState.STATE.COLLAPSE) {
-            if (currentY < maxScroll - POINT_TO_SCROLL_CHANGE_STATE)
+            if (currentY > POINT_TO_SCROLL_CHANGE_STATE) {
                 open();
-            else
+            }
+            else {
                 close();
+            }
         } else {
 
         }
@@ -172,6 +173,8 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
                 state = newState;
+                if (listener != null)
+                    listener.onScrollChange(currentY, state);
             }
         });
         animScroll.start();
@@ -181,7 +184,7 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
         post(new Runnable() {
             @Override
             public void run() {
-                smoothScroll(0, SlidingState.STATE.EXPANSE);
+                smoothScroll(maxScroll, SlidingState.STATE.EXPANSE);
             }
         });
     }
@@ -190,7 +193,7 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
         post(new Runnable() {
             @Override
             public void run() {
-                smoothScroll(maxScroll, SlidingState.STATE.COLLAPSE);
+                smoothScroll(0, SlidingState.STATE.COLLAPSE);
             }
         });
     }
