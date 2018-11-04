@@ -5,6 +5,9 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,6 +26,7 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
 
     private final int POINT_TO_SCROLL_CHANGE_STATE = 100;
     private final int TIME_SMOOTH_SCROLL = 200;
+    private final int ID_FRAME_CONTENT = 10929381;
 
     private Context mContext;
 
@@ -126,6 +130,7 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
         vOverlay.setBackgroundColor(mContext.getResources().getColor(R.color.colorblack));
         vOverlay.setAlpha(0f);
         frameContent = new FrameLayout(mContext);
+        frameContent.setId(ID_FRAME_CONTENT);
         frameContent.setBackgroundColor(mContext.getResources().getColor(R.color.colorAccent));
         frameContent.setLayoutParams(params);
         linearParent.addView(vOverlay);
@@ -196,6 +201,17 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
                 smoothScroll(0, SlidingState.STATE.COLLAPSE);
             }
         });
+    }
+
+    public SlidingState.STATE getState() {
+        return state;
+    }
+
+    public void addFragment(FragmentManager manager, Fragment fragment) {
+
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.add(ID_FRAME_CONTENT, fragment).addToBackStack(fragment.getTag());
+        transaction.commit();
     }
 
     public void setSlidingLayoutListener(SlidingLayoutListener listener) {
