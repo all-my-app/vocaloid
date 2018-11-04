@@ -2,7 +2,6 @@ package leduyhung.me.vocaloid.custom.SlidingLayout;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -22,7 +21,7 @@ import leduyhung.me.vocaloid.R;
 public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlobalLayoutListener,
         ViewTreeObserver.OnScrollChangedListener {
 
-    private final int POINT_TO_SCROLL_CHANGE_STATE = 150;
+    private final int POINT_TO_SCROLL_CHANGE_STATE = 100;
     private final int TIME_SMOOTH_SCROLL = 200;
 
     private Context mContext;
@@ -37,6 +36,8 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
     private int maxScroll, currentY;
 
     private SlidingState.STATE state;
+
+    private SlidingLayoutListener listener;
 
     public SlidingLayout(Context context) {
         super(context);
@@ -82,6 +83,8 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
 
         currentY = getScrollY();
         vOverlay.setAlpha(calculateAlphaOverlay(currentY));
+        if (listener != null)
+            listener.onScrollChange(currentY, state);
     }
 
     @Override
@@ -175,22 +178,24 @@ public class SlidingLayout extends ScrollView implements ViewTreeObserver.OnGlob
     }
 
     public void open() {
-        if (state == SlidingState.STATE.COLLAPSE)
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    smoothScroll(0, SlidingState.STATE.EXPANSE);
-                }
-            });
+        post(new Runnable() {
+            @Override
+            public void run() {
+                smoothScroll(0, SlidingState.STATE.EXPANSE);
+            }
+        });
     }
 
     public void close() {
-        if (state == SlidingState.STATE.EXPANSE)
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    smoothScroll(maxScroll, SlidingState.STATE.COLLAPSE);
-                }
-            });
+        post(new Runnable() {
+            @Override
+            public void run() {
+                smoothScroll(maxScroll, SlidingState.STATE.COLLAPSE);
+            }
+        });
+    }
+
+    public void setSlidingLayoutListener(SlidingLayoutListener listener) {
+        this.listener = listener;
     }
 }
