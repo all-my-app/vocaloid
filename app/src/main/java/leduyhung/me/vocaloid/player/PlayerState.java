@@ -1,4 +1,5 @@
 package leduyhung.me.vocaloid.player;
 
-public class PlayerState {
+public enum PlayerState {
+    PREPARE, LOADING, PLAYING, PAUSE, STOP
 }

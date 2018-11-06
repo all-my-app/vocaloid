@@ -1,17 +1,12 @@
 package leduyhung.me.vocaloid.player;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
-import android.os.Bundle;
+import android.net.Uri;
 import android.os.IBinder;
 
 import com.leduyhung.loglibrary.Logg;
-
-import java.util.ArrayList;
-
-import leduyhung.me.vocaloid.model.song.SongInfo;
 
 
 public class PlayerService extends Service {
@@ -37,14 +32,19 @@ public class PlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        PlayerFactory.newInstance().playSequence(this, 0);
-        startForeground(1, new Notification());
-        return super.onStartCommand(intent, flags, startId);
+        if (intent != null) {
+            int start = intent.getIntExtra(KEY_INDEX_PLAYER, 0);
+            PlayerFactory.newInstance().play(this, Uri.parse(PlayerFactory.newInstance().getListMedia().get(start)));
+            startForeground(1, new Notification());
+        }
+        return START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        PlayerFactory.newInstance().stop(false);
+        Logg.error(getClass(), "onDestroy");
     }
 
     @Override

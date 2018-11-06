@@ -25,7 +25,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import leduyhung.me.vocaloid.R;
 import leduyhung.me.vocaloid.model.user.User;
 import leduyhung.me.vocaloid.player.PlayerFactory;
-import leduyhung.me.vocaloid.player.PlayerService;
 import leduyhung.me.vocaloid.ui.main.home.HomeFragment;
 import leduyhung.me.vocaloid.util.ImageUtil;
 
@@ -66,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStop() {
         super.onStop();
-//        playerBrowser.disconnect();
     }
 
     @Override
@@ -74,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
         User.newInstance().unRegisterCallback();
         EventBus.getDefault().unregister(this);
-//        playerBrowser.disconnect();
     }
 
     @Override
@@ -113,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onReceiveMessage(MessageForMainActivity message) {
         switch (message.getCode()) {
             case MessageForMainActivity.CODE_PLAY_MUSIC:
-                startService(new Intent(this, PlayerService.class));
+                factory.playSequence(this, message.getIndex());
 //                factory.playSequence(this, message.getIndex());
                 break;
             case MessageForMainActivity.CODE_LOAD_DATA_MUSIC:
