@@ -6,26 +6,54 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Looper;
 
 import com.leduyhung.loglibrary.Logg;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
+import leduyhung.me.vocaloid.model.song.SongInfo;
+
 public class PlayerFactory {
 
-    private Context mContext;
+    private static PlayerFactory instance;
+
     private ArrayList<String> listLinkMedia;
     private int index;
     private boolean isPlaySequence;
 
+    private Thread threadPlayer;
     private MediaPlayer mediaPlayer;
 
-    public PlayerFactory(Context mContext) {
-        this.mContext = mContext;
+    public static PlayerFactory newInstance() {
+
+        if (instance == null)
+            instance = new PlayerFactory();
+        return instance;
+    }
+
+    public PlayerFactory() {
         listLinkMedia = new ArrayList<>();
         index = 0;
         isPlaySequence = false;
+    }
+
+    public void addListPlay(final ArrayList<SongInfo> data) {
+        if (threadPlayer != null) {
+            threadPlayer.interrupt();
+        }
+        threadPlayer = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+                for (SongInfo info: data) {
+                    addListPlay(info.getLink());
+                }
+            }
+        });
+        threadPlayer.start();
     }
 
     public void addListPlay(String link) {
@@ -49,14 +77,14 @@ public class PlayerFactory {
         listLinkMedia.clear();
     }
 
-    public void playSequence(int start) {
+    public void playSequence(Context mContext, int start) {
 
         index = start;
         isPlaySequence = true;
-        play(Uri.parse(listLinkMedia.get(index)));
+        play(mContext, Uri.parse(listLinkMedia.get(index)));
     }
 
-    public void play(Uri uri) {
+    public void play(final Context mContext, Uri uri) {
 
         if (mediaPlayer == null || !mediaPlayer.isPlaying()) {
             mediaPlayer = new MediaPlayer();
@@ -93,7 +121,7 @@ public class PlayerFactory {
                             stop();
                             index++;
                             if (index < listLinkMedia.size())
-                                play(Uri.parse(listLinkMedia.get(index)));
+                                play(mContext, Uri.parse(listLinkMedia.get(index)));
                             else
                                 index = listLinkMedia.size() - 1;
                         }
@@ -111,7 +139,7 @@ public class PlayerFactory {
             }
         } else {
             stop();
-            play(uri);
+            play(mContext, uri);
         }
     }
 

@@ -24,7 +24,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import de.hdodenhof.circleimageview.CircleImageView;
 import leduyhung.me.vocaloid.R;
 import leduyhung.me.vocaloid.model.user.User;
-import leduyhung.me.vocaloid.player.PlayerBrowser;
+import leduyhung.me.vocaloid.player.PlayerFactory;
+import leduyhung.me.vocaloid.player.PlayerService;
 import leduyhung.me.vocaloid.ui.main.home.HomeFragment;
 import leduyhung.me.vocaloid.util.ImageUtil;
 
@@ -38,16 +39,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private HomeFragment homeFragment;
 
-    private PlayerBrowser playerBrowser;
-
     private Thread threadAddFragment;
+    private PlayerFactory factory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        playerBrowser = new PlayerBrowser(this);
+        factory = PlayerFactory.newInstance();
         initView();
         checkUserLogin();
         addHomeFragment();
@@ -62,13 +61,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        playerBrowser.connect();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        playerBrowser.disconnect();
+//        playerBrowser.disconnect();
     }
 
     @Override
@@ -76,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
         User.newInstance().unRegisterCallback();
         EventBus.getDefault().unregister(this);
-        playerBrowser.disconnect();
+//        playerBrowser.disconnect();
     }
 
     @Override
@@ -115,10 +113,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onReceiveMessage(MessageForMainActivity message) {
         switch (message.getCode()) {
             case MessageForMainActivity.CODE_PLAY_MUSIC:
-                playerBrowser.playSequence(message.getIndex());
+                startService(new Intent(this, PlayerService.class));
+//                factory.playSequence(this, message.getIndex());
                 break;
             case MessageForMainActivity.CODE_LOAD_DATA_MUSIC:
-                playerBrowser.prepareSong(message.getSongInfos());
+                factory.addListPlay(message.getSongInfos());
                 break;
         }
     }

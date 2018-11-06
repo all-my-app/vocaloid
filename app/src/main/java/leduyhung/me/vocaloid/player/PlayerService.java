@@ -1,32 +1,33 @@
 package leduyhung.me.vocaloid.player;
 
-import android.annotation.TargetApi;
-import android.net.Uri;
-import android.os.Build;
+import android.app.Activity;
+import android.app.Notification;
+import android.app.Service;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaBrowserServiceCompat;
-import android.support.v4.media.MediaDescriptionCompat;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
+import android.os.IBinder;
 
 import com.leduyhung.loglibrary.Logg;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import leduyhung.me.vocaloid.R;
+import leduyhung.me.vocaloid.model.song.SongInfo;
 
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class PlayerService extends MediaBrowserServiceCompat {
+
+public class PlayerService extends Service {
 
     public static final String KEY_INDEX_PLAYER = "KEY_INDEX_PLAYER";
 
-    private MediaSessionCompat mediaSession;
-    private PlaybackStateCompat.Builder playBackState;
+    private static PlayerService instance;
     private PlayerFactory playerFactory;
+    private Thread threadPlayer;
+
+    public static PlayerService newInstance() {
+
+        if (instance == null)
+            instance = new PlayerService();
+        return instance;
+    }
 
     @Override
     public void onCreate() {
@@ -35,15 +36,10 @@ public class PlayerService extends MediaBrowserServiceCompat {
     }
 
     @Override
-    public BrowserRoot onGetRoot(String s, int i, Bundle bundle) {
-        Logg.error(getClass(), "onGetRoot " + s);
-        return new BrowserRoot(getString(R.string.app_name), null);
-    }
-
-    @Override
-    public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
-        Logg.error(getClass(), "onLoadChildren " + parentId);
-        result.sendResult(null);
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        PlayerFactory.newInstance().playSequence(this, 0);
+        startForeground(1, new Notification());
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
@@ -51,82 +47,14 @@ public class PlayerService extends MediaBrowserServiceCompat {
         super.onDestroy();
     }
 
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
     private void init() {
-        mediaSession = new MediaSessionCompat(this, getClass().getName());
-        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
-                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
 
-        playBackState = new PlaybackStateCompat.Builder()
-                .setActions(PlaybackStateCompat.ACTION_PLAY |
-                        PlaybackStateCompat.ACTION_PLAY_PAUSE)
-                .setActions(PlaybackStateCompat.ACTION_SEEK_TO);
-        mediaSession.setPlaybackState(playBackState.build());
-        mediaSession.setCallback(new MediaSessionCallback());
-        setSessionToken(mediaSession.getSessionToken());
-        playerFactory = new PlayerFactory(this);
     }
 
-    private class MediaSessionCallback extends MediaSessionCompat.Callback {
 
-        private final List<MediaSessionCompat.QueueItem> mPlaylist = new ArrayList<>();
-        private int index = -1;
-        MediaMetadataCompat mPreparedMedia;
-
-        @Override
-        public void onAddQueueItem(MediaDescriptionCompat description) {
-            Logg.error(PlayerService.class, "onAddQueueItem");
-            mPlaylist.add(new MediaSessionCompat.QueueItem(description, description.hashCode()));
-            index = (index == -1 ? 0 : index);
-            mediaSession.setQueue(mPlaylist);
-            playerFactory.addListPlay(description.getMediaUri().toString());
-        }
-
-        @Override
-        public void onRemoveQueueItem(MediaDescriptionCompat description) {
-            Logg.error(PlayerService.class, "onRemoveQueueItem");
-            mPlaylist.remove(new MediaSessionCompat.QueueItem(description, description.hashCode()));
-            index = (mPlaylist.isEmpty() ? -1 : index);
-            mediaSession.setQueue(mPlaylist);
-        }
-
-        @Override
-        public void onPrepare() {
-
-            Logg.error(PlayerService.class, "onPrepare");
-            if (mPlaylist.isEmpty())
-                return;
-
-            mediaSession.setMetadata(mPreparedMedia);
-
-            if (!mediaSession.isActive())
-                mediaSession.setActive(true);
-        }
-
-        @Override
-        public void onPlayFromUri(Uri uri, Bundle extras) {
-            if (mPlaylist.isEmpty() || !mediaSession.isActive())
-                return;
-            Logg.error(PlayerService.class, "onPlayFromUri");
-            if (extras == null)
-                playerFactory.play(uri);
-            else {
-                playerFactory.playSequence(extras != null ? extras.getInt(KEY_INDEX_PLAYER) : 0);
-            }
-        }
-
-        @Override
-        public void onPause() {
-            super.onPause();
-        }
-
-        @Override
-        public void onStop() {
-            super.onStop();
-        }
-
-        @Override
-        public void onSeekTo(long pos) {
-            super.onSeekTo(pos);
-        }
-    }
 }
