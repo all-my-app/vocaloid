@@ -1,6 +1,5 @@
 package leduyhung.me.vocaloid.player;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
@@ -8,30 +7,35 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Looper;
-import android.util.Log;
 
 import com.leduyhung.loglibrary.Logg;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import leduyhung.me.vocaloid.model.song.SongInfo;
 
 public class PlayerFactory {
 
+    private static final int COUNT_TIME_SPEED = 500;
+
     private static PlayerFactory instance;
 
-    private ArrayList<String> listLinkMedia;
+    private ArrayList<SongInfo> listLinkMedia;
     private int index;
     private boolean isPlaySequence;
     private PlayerState state;
     private PlayerMode mode;
 
     private Thread threadPlayer, threadLoadData;
+    private Timer countTimePlayer;
     private MediaPlayer mediaPlayer;
+
+    private PlayerCallback callback;
 
     public static PlayerFactory newInstance() {
 
@@ -58,6 +62,30 @@ public class PlayerFactory {
         }
     }
 
+    private void startCountTimePlayer() {
+        if (countTimePlayer == null && state == PlayerState.PLAYING) {
+
+            TimerTask task = new TimerTask() {
+                @Override
+                public void run() {
+                    if (mediaPlayer != null) {
+                        if (callback != null)
+                            callback.onPlaying(listLinkMedia.get(index), mediaPlayer.getCurrentPosition());
+                    }
+                }
+            };
+            countTimePlayer = new Timer();
+            countTimePlayer.schedule(task, 0, COUNT_TIME_SPEED);
+        }
+    }
+
+    private void stopCountTimePlayer() {
+        if (countTimePlayer != null) {
+            countTimePlayer.cancel();
+        }
+        countTimePlayer = null;
+    }
+
     public void addListPlay(final ArrayList<SongInfo> data) {
         if (threadLoadData != null) {
             threadLoadData.interrupt();
@@ -67,7 +95,7 @@ public class PlayerFactory {
             public void run() {
                 Looper.prepare();
                 for (SongInfo info : data) {
-                    addListPlay(info.getLink());
+                    addListPlay(info);
                 }
                 if (state == PlayerState.STOP)
                     state = PlayerState.PREPARE;
@@ -76,9 +104,9 @@ public class PlayerFactory {
         threadLoadData.start();
     }
 
-    public void addListPlay(String link) {
-        if (link != null && link.length() > 0)
-            listLinkMedia.add(link);
+    public void addListPlay(SongInfo song) {
+        if (song != null)
+            listLinkMedia.add(song);
         else
             Logg.error(getClass(), "addListPlay: link is null");
     }
@@ -97,7 +125,7 @@ public class PlayerFactory {
         listLinkMedia.clear();
     }
 
-    public ArrayList<String> getListMedia() {
+    public ArrayList<SongInfo> getListMedia() {
         return listLinkMedia;
     }
 
@@ -130,6 +158,8 @@ public class PlayerFactory {
             public void run() {
 
                 if (mediaPlayer == null || !mediaPlayer.isPlaying()) {
+                    if (callback != null)
+                        callback.onPrepare(listLinkMedia.get(index), index);
                     mediaPlayer = new MediaPlayer();
                     state = PlayerState.LOADING;
                     try {
@@ -148,12 +178,17 @@ public class PlayerFactory {
                                 state = PlayerState.PLAYING;
                                 Logg.error(PlayerFactory.class, "Prepared: Duration = " + mediaPlayer.getDuration());
                                 mediaPlayer.start();
+                                startCountTimePlayer();
+                                if (callback != null)
+                                    callback.onStart(listLinkMedia.get(index));
                             }
                         });
                         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                             @Override
                             public void onCompletion(MediaPlayer mediaPlayer) {
                                 Logg.error(PlayerFactory.class, "Play complete");
+                                if (callback != null)
+                                    callback.onPlayingComplete();
                                 if (!isPlaySequence)
                                     pause();
                                 else {
@@ -165,12 +200,16 @@ public class PlayerFactory {
                             @Override
                             public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
                                 Logg.error(PlayerFactory.class, "Error: " + i + " -- " + i1);
+                                if (callback != null)
+                                    callback.onError();
                                 mContext.stopService(new Intent(mContext, PlayerService.class));
                                 return false;
                             }
                         });
                     } catch (IOException e) {
                         Logg.error(getClass(), "play: " + e.toString());
+                        if (callback != null)
+                            callback.onError();
                     }
                 } else {
                     stop(false);
@@ -186,9 +225,12 @@ public class PlayerFactory {
     }
 
     public void pause() {
+        stopCountTimePlayer();
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             state = PlayerState.PAUSE;
+            if (callback != null)
+                callback.onPause();
         }
     }
 
@@ -196,6 +238,17 @@ public class PlayerFactory {
         if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
             mediaPlayer.start();
             state = PlayerState.PLAYING;
+            startCountTimePlayer();
+        }
+    }
+
+    public void seekTo(int milliseconds) {
+        if (mediaPlayer != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                mediaPlayer.seekTo(milliseconds, MediaPlayer.SEEK_CLOSEST);
+            } else {
+                mediaPlayer.seekTo(milliseconds);
+            }
         }
     }
 
@@ -208,7 +261,7 @@ public class PlayerFactory {
             index++;
         synchronized (listLinkMedia) {
             if (index < listLinkMedia.size())
-                play(mContext, Uri.parse(listLinkMedia.get(index)));
+                play(mContext, Uri.parse(listLinkMedia.get(index).getLink()));
             else {
                 index = listLinkMedia.size() - 1;
                 mContext.stopService(new Intent(mContext, PlayerService.class));
@@ -217,6 +270,7 @@ public class PlayerFactory {
     }
 
     public void previous(Context mContext) {
+
         stop(false);
         if (mode == PlayerMode.SHUFFLE)
             index = getRandomPosition();
@@ -224,7 +278,7 @@ public class PlayerFactory {
             index--;
         synchronized (listLinkMedia) {
             if (index < listLinkMedia.size())
-                play(mContext, Uri.parse(listLinkMedia.get(index)));
+                play(mContext, Uri.parse(listLinkMedia.get(index).getLink()));
             else {
                 index = listLinkMedia.size() - 1;
                 mContext.stopService(new Intent(mContext, PlayerService.class));
@@ -234,11 +288,14 @@ public class PlayerFactory {
 
     public void stop(boolean destroy) {
 
+        stopCountTimePlayer();
         if (mediaPlayer != null) {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
             }
             mediaPlayer.release();
+            if (callback != null)
+                callback.onStop();
         }
         mediaPlayer = null;
         if (destroy) {
@@ -264,5 +321,10 @@ public class PlayerFactory {
 
     public void setMode(PlayerMode mode) {
         this.mode = mode;
+    }
+
+    public void setCallback(PlayerCallback callback) {
+
+        this.callback = callback;
     }
 }

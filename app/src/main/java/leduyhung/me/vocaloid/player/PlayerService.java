@@ -1,6 +1,5 @@
 package leduyhung.me.vocaloid.player;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
@@ -9,20 +8,10 @@ import android.os.IBinder;
 import com.leduyhung.loglibrary.Logg;
 
 
-public class PlayerService extends Service {
+public class PlayerService extends Service{
 
     public static final String KEY_INDEX_PLAYER = "KEY_INDEX_PLAYER";
-
-    private static PlayerService instance;
-    private PlayerFactory playerFactory;
-    private Thread threadPlayer;
-
-    public static PlayerService newInstance() {
-
-        if (instance == null)
-            instance = new PlayerService();
-        return instance;
-    }
+    private PlayerNotification notification;
 
     @Override
     public void onCreate() {
@@ -34,8 +23,8 @@ public class PlayerService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
             int start = intent.getIntExtra(KEY_INDEX_PLAYER, 0);
-            PlayerFactory.newInstance().play(this, Uri.parse(PlayerFactory.newInstance().getListMedia().get(start)));
-            startForeground(1, new Notification());
+            PlayerFactory.newInstance().play(this, Uri.parse(PlayerFactory.newInstance().getListMedia().get(start).getLink()));
+            startForeground(1, notification.createNotification());
         }
         return START_NOT_STICKY;
     }
@@ -54,7 +43,7 @@ public class PlayerService extends Service {
 
     private void init() {
 
+        notification = new PlayerNotification(this);
+
     }
-
-
 }
