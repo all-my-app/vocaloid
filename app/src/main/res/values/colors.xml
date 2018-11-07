@@ -12,4 +12,5 @@
     <color name="colorblackTransparent">#96000000</color>
     <color name="colorblackTransparent_1">#82000000</color>
     <color name="colorDrawer">#c81b0c00</color>
+    <color name="colorNotification">#333232</color>
 </resources>
