@@ -36,7 +36,7 @@ public class PlayerService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        PlayerFactory.newInstance().stop(false);
+        PlayerFactory.newInstance().stop(this, false);
         notification.destroyNotification();
         Logg.error(getClass(), "onDestroy");
     }
@@ -48,7 +48,7 @@ public class PlayerService extends Service {
 
     private void init() {
 
-        notification = new PlayerNotification(this);
+        notification = new PlayerNotification(this, this);
 
     }
 }

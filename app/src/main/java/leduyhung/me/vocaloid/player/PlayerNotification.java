@@ -27,7 +27,7 @@ import leduyhung.me.vocaloid.ui.main.MainActivity;
 import leduyhung.me.vocaloid.util.ClientUtil;
 import leduyhung.me.vocaloid.util.ImageUtil;
 
-public class PlayerNotification implements RequestListener<Bitmap> {
+public class PlayerNotification implements RequestListener<Bitmap>, PlayerCallback {
 
     public static final int NOTIFICATION_ID = 1992;
     public static final String CHANNEL_ID = "1992";
@@ -43,14 +43,17 @@ public class PlayerNotification implements RequestListener<Bitmap> {
     private static RemoteViews remoteViews;
 
     private NotificationManager notificationManager;
+    private PlayerService playerService;
     private int width, height;
 
-    public PlayerNotification(Context context) {
+    public PlayerNotification(Context context, PlayerService playerService) {
         mContext = context;
+        this.playerService = playerService;
     }
 
     public Notification createNotification() {
 
+        PlayerFactory.newInstance().setCallback(new PlayerCallbackModel(getClass(), this));
         notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         width = mContext.getResources().getDimensionPixelSize(R.dimen.media_notification_size_thumbnail);
         height = width;
@@ -145,6 +148,27 @@ public class PlayerNotification implements RequestListener<Bitmap> {
         remoteViews.setOnClickPendingIntent(R.id.relative_play_mode, clickIntent);
     }
 
+    private void updateNextContent() {
+
+        if (remoteViews != null && notificationManager != null) {
+            SongInfo songInfo = PlayerFactory.newInstance().getCurrentSong();
+            String songName = "-";
+            String singerName = "-";
+            int width = mContext.getResources().getDimensionPixelSize(R.dimen.media_notification_size_thumbnail);
+            int height = width;
+            if (songInfo != null) {
+
+                songName = songInfo.getName();
+                singerName = songInfo.getSinger();
+            }
+            remoteViews.setTextViewText(R.id.txt_song, songName);
+            remoteViews.setTextViewText(R.id.txt_singer, singerName);
+            remoteViews.setImageViewResource(R.id.img_play, R.drawable.ic_pause_white);
+            notificationManagerCompat.notify(NOTIFICATION_ID, mBuilder.build());
+            ImageUtil.newInstance().loadBitmapFromNet(mContext, songInfo.getThumbnail(), width, height, this);
+        }
+    }
+
     @Override
     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
         Logg.error(getClass(), " onLoadFailed ");
@@ -161,6 +185,43 @@ public class PlayerNotification implements RequestListener<Bitmap> {
         return false;
     }
 
+    @Override
+    public void onPrepare(SongInfo songInfo, int index) {
+        updateNextContent();
+        playerService.startForeground(NOTIFICATION_ID, createNotification());
+    }
+
+    @Override
+    public void onStart(SongInfo songInfo) {
+
+    }
+
+    @Override
+    public void onPlaying(SongInfo songInfo, int currentTime) {
+
+    }
+
+    @Override
+    public void onPlayingComplete() {
+
+    }
+
+    @Override
+    public void onPause() {
+
+        playerService.stopForeground(false);
+    }
+
+    @Override
+    public void onStop() {
+
+    }
+
+    @Override
+    public void onError() {
+
+    }
+
     public static class EventPlayerNotificationReceiver extends BroadcastReceiver {
 
         @Override
@@ -175,13 +236,13 @@ public class PlayerNotification implements RequestListener<Bitmap> {
                             PlayerFactory.newInstance().previous(mContext);
                             break;
                         case ACTION_PLAYER_NOTIFICATION_PLAY_PAUSE:
-                            if (PlayerFactory.newInstance().isPlaying()) {
+                            if (PlayerFactory.newInstance().getState() == PlayerState.PLAYING) {
                                 Logg.error(getClass(), "Pause click");
                                 PlayerFactory.newInstance().pause();
                                 remoteViews.setImageViewResource(R.id.img_play, R.drawable.ic_play_white);
                                 mBuilder.setAutoCancel(true);
                                 notificationManagerCompat.notify(NOTIFICATION_ID, mBuilder.build());
-                            } else {
+                            } else if (PlayerFactory.newInstance().getState() == PlayerState.PAUSE){
                                 Logg.error(getClass(), "Play click");
                                 PlayerFactory.newInstance().resume();
                                 remoteViews.setImageViewResource(R.id.img_play, R.drawable.ic_pause_white);

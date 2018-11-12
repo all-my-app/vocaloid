@@ -34,7 +34,7 @@ public class PlayerFactory {
     private Timer countTimePlayer;
     private MediaPlayer mediaPlayer;
 
-    private PlayerCallback callback;
+    private ArrayList<PlayerCallbackModel> modelCallbacks;
 
     public static PlayerFactory newInstance() {
 
@@ -45,6 +45,7 @@ public class PlayerFactory {
 
     private PlayerFactory() {
         listLinkMedia = new ArrayList<>();
+        modelCallbacks = new ArrayList<>();
         index = 0;
         state = PlayerState.STOP;
         mode = PlayerMode.SEQUENCE;
@@ -67,8 +68,9 @@ public class PlayerFactory {
                 @Override
                 public void run() {
                     if (mediaPlayer != null) {
-                        if (callback != null)
-                            callback.onPlaying(listLinkMedia.get(index), mediaPlayer.getCurrentPosition());
+                        for (PlayerCallbackModel mModelCallback : modelCallbacks) {
+                            mModelCallback.getCallback().onPlaying(listLinkMedia.get(index), mediaPlayer.getCurrentPosition());
+                        }
                     }
                 }
             };
@@ -154,9 +156,10 @@ public class PlayerFactory {
             @Override
             public void run() {
 
-                if (mediaPlayer == null || !mediaPlayer.isPlaying()) {
-                    if (callback != null)
-                        callback.onPrepare(listLinkMedia.get(index), index);
+                if (mediaPlayer == null || state != PlayerState.PLAYING) {
+                    for (PlayerCallbackModel mModelCallback : modelCallbacks) {
+                        mModelCallback.getCallback().onPrepare(listLinkMedia.get(index), index);
+                    }
                     mediaPlayer = new MediaPlayer();
                     state = PlayerState.LOADING;
                     try {
@@ -176,16 +179,18 @@ public class PlayerFactory {
                                 Logg.error(PlayerFactory.class, "Prepared: Duration = " + mediaPlayer.getDuration());
                                 mediaPlayer.start();
                                 startCountTimePlayer();
-                                if (callback != null)
-                                    callback.onStart(listLinkMedia.get(index));
+                                for (PlayerCallbackModel mModelCallback : modelCallbacks) {
+                                    mModelCallback.getCallback().onStart(listLinkMedia.get(index));
+                                }
                             }
                         });
                         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                             @Override
                             public void onCompletion(MediaPlayer mediaPlayer) {
                                 Logg.error(PlayerFactory.class, "Play complete");
-                                if (callback != null)
-                                    callback.onPlayingComplete();
+                                for (PlayerCallbackModel mModelCallback : modelCallbacks) {
+                                    mModelCallback.getCallback().onPlayingComplete();
+                                }
                                 next(mContext, true);
                             }
                         });
@@ -193,19 +198,21 @@ public class PlayerFactory {
                             @Override
                             public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
                                 Logg.error(PlayerFactory.class, "Error: " + i + " -- " + i1);
-                                if (callback != null)
-                                    callback.onError();
+                                for (PlayerCallbackModel mModelCallback : modelCallbacks) {
+                                    mModelCallback.getCallback().onError();
+                                }
                                 mContext.stopService(new Intent(mContext, PlayerService.class));
                                 return false;
                             }
                         });
                     } catch (IOException e) {
                         Logg.error(getClass(), "play: " + e.toString());
-                        if (callback != null)
-                            callback.onError();
+                        for (PlayerCallbackModel mModelCallback : modelCallbacks) {
+                            mModelCallback.getCallback().onError();
+                        }
                     }
                 } else {
-                    stop(false);
+                    stop(mContext, false);
                     play(mContext, uri);
                 }
             }
@@ -213,17 +220,15 @@ public class PlayerFactory {
         threadPlayer.start();
     }
 
-    public boolean isPlaying() {
-        return mediaPlayer != null && mediaPlayer.isPlaying();
-    }
-
     public void pause() {
         stopCountTimePlayer();
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            Logg.error(getClass(), "onPause -------------");
             mediaPlayer.pause();
             state = PlayerState.PAUSE;
-            if (callback != null)
-                callback.onPause();
+            for (PlayerCallbackModel mModelCallback : modelCallbacks) {
+                mModelCallback.getCallback().onPause();
+            }
         }
     }
 
@@ -247,7 +252,7 @@ public class PlayerFactory {
 
     public void next(Context mContext, boolean isAutoNext) {
 
-        stop(false);
+        stop(mContext, false);
         if (mode == PlayerMode.SHUFFLE)
             index = getRandomPosition();
         else if (mode == PlayerMode.SEQUENCE || !isAutoNext)
@@ -255,25 +260,29 @@ public class PlayerFactory {
         synchronized (listLinkMedia) {
             if (index >= listLinkMedia.size())
                 index = listLinkMedia.size() - 1;
-            playSequence(mContext, index);
+            if (listLinkMedia.size() == 0)
+                return;
+            play(mContext, Uri.parse(listLinkMedia.get(index).getLink()));
         }
     }
 
     public void previous(Context mContext) {
 
-        stop(false);
+        stop(mContext, false);
         if (mode == PlayerMode.SHUFFLE)
             index = getRandomPosition();
         else
             index--;
         synchronized (listLinkMedia) {
-            if (index >= listLinkMedia.size())
-                index = listLinkMedia.size() - 1;
-            playSequence(mContext, index);
+            if (index < 0)
+                index = 0;
+            if (listLinkMedia.size() == 0)
+                return;
+            play(mContext, Uri.parse(listLinkMedia.get(index).getLink()));
         }
     }
 
-    public void stop(boolean destroy) {
+    public void stop(Context mContext, boolean destroy) {
 
         stopCountTimePlayer();
         if (mediaPlayer != null) {
@@ -281,12 +290,17 @@ public class PlayerFactory {
                 mediaPlayer.stop();
             }
             mediaPlayer.release();
-            if (callback != null)
-                callback.onStop();
+            for (PlayerCallbackModel mModelCallback : modelCallbacks) {
+                mModelCallback.getCallback().onStop();
+            }
         }
         mediaPlayer = null;
         if (destroy) {
             state = PlayerState.STOP;
+            mContext.stopService(new Intent(mContext, PlayerService.class));
+            modelCallbacks.clear();
+        } else {
+            state = PlayerState.PREPARE;
         }
     }
 
@@ -311,8 +325,14 @@ public class PlayerFactory {
         this.mode = mode;
     }
 
-    public void setCallback(PlayerCallback callback) {
+    public void setCallback(PlayerCallbackModel modelCallback) {
 
-        this.callback = callback;
+        for (PlayerCallbackModel mCallback : modelCallbacks) {
+            if (modelCallback.getTag() == mCallback.getTag()) {
+                modelCallbacks.remove(mCallback);
+                break;
+            }
+        }
+        modelCallbacks.add(modelCallback);
     }
 }
