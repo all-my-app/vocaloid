@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/relative_content"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="130dp"
                 android:background="@color/colorNotification">
 
     <ImageView
@@ -12,11 +13,12 @@
         android:layout_marginTop="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="10dp"
-        android:src="@mipmap/ic_launcher"
-        android:adjustViewBounds="true"/>
+        android:adjustViewBounds="true"
+        android:src="@mipmap/ic_launcher"/>
 
     <TextView
         android:id="@+id/txt_song"
+        style="@style/TextAppearance.Compat.Notification.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/img_thumbnail"
@@ -24,11 +26,11 @@
         android:layout_marginEnd="10dp"
         android:text="dsadsadsadsadsadsad"
         android:textColor="@color/colorWhite"
-        android:textSize="18sp"
-        style="@style/TextAppearance.Compat.Notification.Title"/>
+        android:textSize="18sp"/>
 
     <TextView
         android:id="@+id/txt_singer"
+        style="@style/TextAppearance.Compat.Notification.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/img_thumbnail"
@@ -36,8 +38,7 @@
         android:layout_marginEnd="10dp"
         android:text="sdadsad"
         android:textColor="@color/colorGray"
-        android:textSize="12sp"
-        style="@style/TextAppearance.Compat.Notification.Title"/>
+        android:textSize="12sp"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -47,7 +48,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:weightSum="4">
@@ -56,26 +57,31 @@
             android:id="@+id/relative_previous"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:clickable="true"
-            android:focusable="true"
-            android:layout_weight="1">
+            android:focusable="true">
 
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_centerInParent="true"/>
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_previous_white"/>
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/relative_play"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true">
 
             <ImageView
+                android:id="@+id/img_play"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_centerInParent="true"/>
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_pause_white"/>
         </RelativeLayout>
 
         <RelativeLayout
@@ -87,7 +93,8 @@
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_centerInParent="true"/>
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_next_white"/>
         </RelativeLayout>
 
         <RelativeLayout
@@ -97,9 +104,11 @@
             android:layout_weight="1">
 
             <ImageView
+                android:id="@+id/img_play_mode"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_centerInParent="true"/>
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_sequence_white"/>
         </RelativeLayout>
     </LinearLayout>
 </RelativeLayout>

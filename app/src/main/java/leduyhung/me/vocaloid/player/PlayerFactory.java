@@ -27,7 +27,6 @@ public class PlayerFactory {
 
     private ArrayList<SongInfo> listLinkMedia;
     private int index;
-    private boolean isPlaySequence;
     private PlayerState state;
     private PlayerMode mode;
 
@@ -47,7 +46,6 @@ public class PlayerFactory {
     private PlayerFactory() {
         listLinkMedia = new ArrayList<>();
         index = 0;
-        isPlaySequence = false;
         state = PlayerState.STOP;
         mode = PlayerMode.SEQUENCE;
     }
@@ -134,11 +132,10 @@ public class PlayerFactory {
         if (state == PlayerState.PREPARE || state == PlayerState.PLAYING || state == PlayerState.PAUSE || state == PlayerState.LOADING) {
             Intent intent = new Intent(mContext, PlayerService.class);
             intent.putExtra(PlayerService.KEY_INDEX_PLAYER, start);
-            if (state == PlayerState.PLAYING)
+            if (state == PlayerState.PLAYING || state == PlayerState.PAUSE || state == PlayerState.LOADING)
                 mContext.stopService(intent);
             mContext.startService(intent);
             index = start;
-            isPlaySequence = true;
         } else {
             if (listLinkMedia.size() > 0 && start < listLinkMedia.size()) {
                 state = PlayerState.PREPARE;
@@ -189,11 +186,7 @@ public class PlayerFactory {
                                 Logg.error(PlayerFactory.class, "Play complete");
                                 if (callback != null)
                                     callback.onPlayingComplete();
-                                if (!isPlaySequence)
-                                    pause();
-                                else {
-                                    next(mContext, true);
-                                }
+                                next(mContext, true);
                             }
                         });
                         mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
@@ -260,12 +253,9 @@ public class PlayerFactory {
         else if (mode == PlayerMode.SEQUENCE || !isAutoNext)
             index++;
         synchronized (listLinkMedia) {
-            if (index < listLinkMedia.size())
-                play(mContext, Uri.parse(listLinkMedia.get(index).getLink()));
-            else {
+            if (index >= listLinkMedia.size())
                 index = listLinkMedia.size() - 1;
-                mContext.stopService(new Intent(mContext, PlayerService.class));
-            }
+            playSequence(mContext, index);
         }
     }
 
@@ -277,12 +267,9 @@ public class PlayerFactory {
         else
             index--;
         synchronized (listLinkMedia) {
-            if (index < listLinkMedia.size())
-                play(mContext, Uri.parse(listLinkMedia.get(index).getLink()));
-            else {
+            if (index >= listLinkMedia.size())
                 index = listLinkMedia.size() - 1;
-                mContext.stopService(new Intent(mContext, PlayerService.class));
-            }
+            playSequence(mContext, index);
         }
     }
 
@@ -303,10 +290,11 @@ public class PlayerFactory {
         }
     }
 
-    public void destroy(Context mContext) {
-        mContext.stopService(new Intent(mContext, PlayerService.class));
-        instance = null;
-
+    public SongInfo getCurrentSong() {
+        if (listLinkMedia != null && listLinkMedia.size() > index)
+            return listLinkMedia.get(index);
+        else
+            return null;
     }
 
     public PlayerState getState() {
