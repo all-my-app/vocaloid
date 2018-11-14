@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorblack_1"
+        android:orientation="vertical"
+        android:weightSum="10">
+
+        <ImageView
+            android:id="@+id/img_gif"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="6.2"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5">
+
+            <TextView
+                android:id="@+id/txt_current_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_normal"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:text="--:--"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/text_size_small"/>
+
+            <TextView
+                android:id="@+id/txt_total_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="@dimen/margin_normal"
+                android:layout_alignParentEnd="true"
+                android:text="--:--"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/text_size_small"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/txt_title_song"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.7"
+            android:gravity="center"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/text_size_normal"/>
+
+        <TextView
+            android:id="@+id/txt_title_singer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:gravity="center"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/text_size_small"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.1"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:weightSum="5">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:scaleType="centerInside"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:scaleType="centerInside"/>
+
+            <ImageView
+                android:id="@+id/img_play_control"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/anim_play_pause"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:scaleType="centerInside"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:scaleType="centerInside"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/linear_download"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/colorblack_2"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin_large"
+                android:gravity="center"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/text_size_normal"
+                android:layout_toEndOf="@+id/img_download"
+                android:text="View ads to download !"/>
+
+            <ImageView
+                android:id="@+id/img_download"
+                android:layout_width="@dimen/player_size_icon_download"
+                android:layout_height="@dimen/player_size_icon_download"
+                android:layout_marginStart="@dimen/margin_normal"
+                android:layout_centerVertical="true"
+                android:layout_alignParentStart="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_download"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/img_collapse"
+        android:layout_width="@dimen/main_size_icon_item_menu"
+        android:layout_height="@dimen/main_size_icon_item_menu"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="@dimen/margin_normal"
+        android:layout_marginEnd="@dimen/margin_normal"
+        android:background="@drawable/bg_circle"
+        android:clickable="true"
+        android:focusable="true"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/ic_collapse"/>
+</RelativeLayout>
