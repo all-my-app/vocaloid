@@ -335,4 +335,14 @@ public class PlayerFactory {
         }
         modelCallbacks.add(modelCallback);
     }
+
+    public void removeCallback(PlayerCallbackModel modelCallback) {
+
+        for (PlayerCallbackModel mCallback : modelCallbacks) {
+            if (modelCallback.getTag() == mCallback.getTag()) {
+                modelCallbacks.remove(mCallback);
+                break;
+            }
+        }
+    }
 }

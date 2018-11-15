@@ -72,16 +72,24 @@
             android:weightSum="5">
 
             <ImageView
+                android:id="@+id/img_favorite"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:scaleType="centerInside"/>
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_favorite_unselect"/>
 
             <ImageView
+                android:id="@+id/img_previous"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:scaleType="centerInside"/>
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_previous_white"/>
 
             <ImageView
                 android:id="@+id/img_play_control"
@@ -95,20 +103,28 @@
                 android:src="@drawable/anim_play_pause"/>
 
             <ImageView
+                android:id="@+id/img_next"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:scaleType="centerInside"/>
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_next_white"/>
 
             <ImageView
+                android:id="@+id/img_play_mode"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:scaleType="centerInside"/>
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_loop_white"/>
         </LinearLayout>
 
         <RelativeLayout
-            android:id="@+id/linear_download"
+            android:id="@+id/relative_download"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -121,11 +137,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="@dimen/margin_large"
-                android:gravity="center"
-                android:textColor="@color/colorWhite"
-                android:textSize="@dimen/text_size_normal"
                 android:layout_toEndOf="@+id/img_download"
-                android:text="View ads to download !"/>
+                android:gravity="center"
+                android:text="View ads to download !"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/text_size_normal"/>
 
             <ImageView
                 android:id="@+id/img_download"
