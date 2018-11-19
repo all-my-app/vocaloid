@@ -10,6 +10,6 @@
     <leduyhung.me.vocaloid.custom.Seekbar.SeekbarView
         android:id="@+id/seekbar"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="25dp"
         android:layout_centerInParent="true"/>
 </RelativeLayout>

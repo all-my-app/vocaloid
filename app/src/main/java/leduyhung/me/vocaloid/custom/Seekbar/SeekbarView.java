@@ -10,17 +10,24 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.leduyhung.loglibrary.Logg;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 import leduyhung.me.vocaloid.R;
 
 public class SeekbarView extends View {
 
     private Context mContext;
-    private int width, height, currentSeek, oldSeek;
+    private int width, top, bottom, currentSeek, oldSeek;
     private int colorSeek, colorBackground;
     private int maxProgress, progress;
     private boolean changeFromUser;
 
     private Paint paintSeek, paintBackground;
+    private Timer timerAnimation;
+    private TimerTask timerTaskAnimation;
 
     public SeekbarView(Context context) {
         super(context);
@@ -41,7 +48,8 @@ public class SeekbarView extends View {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         this.width = getWidth();
-        this.height = getHeight();
+        this.top = getHeight() / 3;
+        this.bottom = getHeight() / 2;
     }
 
     @Override
@@ -53,13 +61,20 @@ public class SeekbarView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
             changeFromUser = true;
             this.currentSeek = (int) event.getX();
             if (currentSeek != oldSeek) {
                 postInvalidate();
             }
-        } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
+        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+
+            changeFromUser = true;
+            this.currentSeek = (int) event.getX();
+            if (currentSeek != oldSeek) {
+                postInvalidate();
+            }
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
             changeFromUser = false;
         }
         return true;
@@ -89,18 +104,22 @@ public class SeekbarView extends View {
     private void drawBackground(Canvas canvas) {
 
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.ADD);
-        canvas.drawRect(0, 0, width, height, paintBackground);
+        canvas.drawRect(0, top, width, bottom, paintBackground);
     }
 
     private void drawSeek(Canvas canvas) {
 
         calculateCurrentSeek();
-        canvas.drawRect(0, 0, currentSeek, height, paintSeek);
+        canvas.drawRect(0, top, currentSeek, bottom, paintSeek);
     }
 
     private void calculateCurrentSeek() {
-        if (maxProgress != 0 && !changeFromUser) {
-            currentSeek = progress * width / maxProgress;
+        if (maxProgress != 0) {
+            if (!changeFromUser)
+                currentSeek = progress * width / maxProgress;
+            else {
+                progress = currentSeek * maxProgress / width;
+            }
         }
         oldSeek = currentSeek;
     }
