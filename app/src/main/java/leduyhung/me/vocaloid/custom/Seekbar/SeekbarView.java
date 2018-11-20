@@ -26,8 +26,7 @@ public class SeekbarView extends View {
     private boolean changeFromUser;
 
     private Paint paintSeek, paintBackground;
-    private Timer timerAnimation;
-    private TimerTask timerTaskAnimation;
+    private SeekbarCallback callback;
 
     public SeekbarView(Context context) {
         super(context);
@@ -119,6 +118,8 @@ public class SeekbarView extends View {
                 currentSeek = progress * width / maxProgress;
             else {
                 progress = currentSeek * maxProgress / width;
+                if (callback != null)
+                    callback.onSeekbarChange(progress);
             }
         }
         oldSeek = currentSeek;
@@ -129,5 +130,9 @@ public class SeekbarView extends View {
             this.progress = progress;
             postInvalidate();
         }
+    }
+
+    public void setCallback(SeekbarCallback callback) {
+        this.callback = callback;
     }
 }
