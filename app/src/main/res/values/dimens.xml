@@ -32,4 +32,5 @@
     <dimen name="player_size_icon_collapse">80dp</dimen>
     <dimen name="player_size_icon_control">40dp</dimen>
     <dimen name="player_size_icon_download">50dp</dimen>
+    <dimen name="player_seekbar_height">25dp</dimen>
 </resources>

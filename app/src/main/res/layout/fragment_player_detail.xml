@@ -22,6 +22,12 @@
             android:layout_height="0dp"
             android:layout_weight="0.5">
 
+            <leduyhung.me.vocaloid.custom.Seekbar.SeekbarView
+                android:id="@+id/seekbar"
+                android:layout_width="match_parent"
+                android:layout_alignParentTop="true"
+                android:layout_height="@dimen/player_seekbar_height"/>
+
             <TextView
                 android:id="@+id/txt_current_duration"
                 android:layout_width="wrap_content"

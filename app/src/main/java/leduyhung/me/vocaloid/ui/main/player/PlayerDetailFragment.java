@@ -14,6 +14,7 @@ import android.widget.TextView;
 import leduyhung.me.vocaloid.BaseFragment;
 
 import leduyhung.me.vocaloid.R;
+import leduyhung.me.vocaloid.custom.Seekbar.SeekbarView;
 import leduyhung.me.vocaloid.model.song.SongInfo;
 import leduyhung.me.vocaloid.player.PlayerCallback;
 import leduyhung.me.vocaloid.player.PlayerCallbackModel;
@@ -25,6 +26,7 @@ public class PlayerDetailFragment extends BaseFragment implements View.OnClickLi
 
     private ImageView iCollapse, iGif, iPrevious, iPlayControl, iNext, iPlayMode;
     private TextView tCurrentDuration, tTotalDuration, tSong, tSinger;
+    private SeekbarView seekbarView;
     private RelativeLayout rDownload;
 
     private PlayerCallbackModel playerCallback;
@@ -116,6 +118,7 @@ public class PlayerDetailFragment extends BaseFragment implements View.OnClickLi
         tSong = root.findViewById(R.id.txt_title_song);
         tSinger = root.findViewById(R.id.txt_title_singer);
         rDownload = root.findViewById(R.id.relative_download);
+        seekbarView = root.findViewById(R.id.seekbar);
 
         iCollapse.setOnClickListener(this);
         iPrevious.setOnClickListener(this);
