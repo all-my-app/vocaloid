@@ -6,4 +6,11 @@
         <attr name="indicator_dot_distance" format="dimension"/>
         <attr name="indicator_dot_number" format="integer"/>
     </declare-styleable>
+
+    <declare-styleable name="SeekbarView">
+        <attr name="seekbar_color" format="color"/>
+        <attr name="seekbar_background" format="color"/>
+        <attr name="seekbar_progress" format="integer"/>
+        <attr name="seekbar_max_progress" format="integer"/>
+    </declare-styleable>
 </resources>

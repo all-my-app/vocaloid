@@ -1,6 +1,7 @@
 package leduyhung.me.vocaloid.custom.Seekbar;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -9,11 +10,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-
-import com.leduyhung.loglibrary.Logg;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 import leduyhung.me.vocaloid.R;
 
@@ -85,12 +81,13 @@ public class SeekbarView extends View {
 
         if (attrs != null) {
 
+            TypedArray typedArray = mContext.obtainStyledAttributes(attrs, R.styleable.SeekbarView);
+            colorSeek = typedArray.getColor(R.styleable.SeekbarView_seekbar_color, mContext.getResources().getColor(R.color.colorAccent));
+            colorBackground = typedArray.getColor(R.styleable.SeekbarView_seekbar_background, mContext.getResources().getColor(R.color.colorPrimary));
+            progress = typedArray.getInteger(R.styleable.SeekbarView_seekbar_progress, 0);
+            maxProgress = typedArray.getInteger(R.styleable.SeekbarView_seekbar_max_progress, 100);
+            typedArray.recycle();
         }
-        progress = 0;
-        maxProgress = 100;
-
-        colorSeek = mContext.getResources().getColor(R.color.colorAccent);
-        colorBackground = mContext.getResources().getColor(R.color.colorGray);
 
         paintSeek = new Paint(Paint.ANTI_ALIAS_FLAG);
         paintSeek.setColor(colorSeek);
