@@ -122,6 +122,11 @@ public class SeekbarView extends View {
         oldSeek = currentSeek;
     }
 
+    public void setMaxProgress(int maxProgress) {
+
+        this.maxProgress = maxProgress;
+    }
+
     public void setProgress(int progress) {
         if (progress <= maxProgress) {
             this.progress = progress;
